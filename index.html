@@ -773,31 +773,35 @@
       }
     }
 
-    function loadSaves() {
+    function loadSave() {
       try {
         const raw = localStorage.getItem(saveKey);
-        const parsed = raw ? JSON.parse(raw) : [];
-        const save = Array.isArray(parsed) ? parsed[0] : parsed;
-        if (!save) return [];
-        return [{ ...save, zone: save.zone || 'Forest', appearance: ensureAppearance(save) }];
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed) return null;
+        return { ...parsed, zone: parsed.zone || 'Forest', appearance: ensureAppearance(parsed) };
       } catch (err) {
         console.warn('Unable to load saves', err);
-        return [];
+        return null;
       }
     }
 
-    function persistSaves(saves) {
+    function persistSave(save) {
       try {
-        localStorage.setItem(saveKey, JSON.stringify(saves));
+        if (save) {
+          localStorage.setItem(saveKey, JSON.stringify(save));
+        } else {
+          localStorage.removeItem(saveKey);
+        }
       } catch (err) {
         console.warn('Unable to save progress', err);
       }
     }
 
     function renderSaves() {
-      const saves = loadSaves();
+      const save = loadSave();
       saveList.innerHTML = '';
-      if (!saves.length) {
+      if (!save) {
         const empty = document.createElement('p');
         empty.textContent = 'No saves yet. Create a character to begin.';
         empty.style.color = 'var(--muted)';
@@ -805,50 +809,48 @@
         return;
       }
 
-      saves.forEach((save) => {
-        const card = document.createElement('div');
-        card.className = 'saveCard';
-        const info = document.createElement('div');
-        info.innerHTML = `<strong>${save.name}</strong><br><span>Focus: ${save.focus} • Zone: ${save.zone || 'Forest'}</span>`;
+      const card = document.createElement('div');
+      card.className = 'saveCard';
+      const info = document.createElement('div');
+      info.innerHTML = `<strong>${save.name}</strong><br><span>Focus: ${save.focus} • Zone: ${save.zone || 'Forest'}</span>`;
 
-        const actions = document.createElement('div');
-        actions.style.display = 'flex';
-        actions.style.gap = '8px';
+      const actions = document.createElement('div');
+      actions.style.display = 'flex';
+      actions.style.gap = '8px';
 
-        const loadBtn = document.createElement('button');
-        loadBtn.className = 'btn secondary';
-        loadBtn.textContent = 'Load';
-        loadBtn.addEventListener('click', () => {
-          currentCharacter = {
-            ...save,
-            zone: save.zone || 'Forest',
-            appearance: ensureAppearance(save),
-          };
-          showScreen('game');
-        });
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn ghost';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.addEventListener('click', () => {
-          persistSaves([]);
-          if (currentCharacter?.name === save.name && currentCharacter?.focus === save.focus) {
-            currentCharacter = null;
-            toggleCharacterMenu(false);
-            showScreen('start');
-          }
-          renderSaves();
-        });
-
-        actions.append(loadBtn, deleteBtn);
-        card.append(info, actions);
-        saveList.appendChild(card);
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'btn secondary';
+      loadBtn.textContent = 'Load';
+      loadBtn.addEventListener('click', () => {
+        currentCharacter = {
+          ...save,
+          zone: save.zone || 'Forest',
+          appearance: ensureAppearance(save),
+        };
+        showScreen('game');
       });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn ghost';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', () => {
+        persistSave(null);
+        if (currentCharacter?.name === save.name && currentCharacter?.focus === save.focus) {
+          currentCharacter = null;
+          toggleCharacterMenu(false);
+          showScreen('start');
+        }
+        renderSaves();
+      });
+
+      actions.append(loadBtn, deleteBtn);
+      card.append(info, actions);
+      saveList.appendChild(card);
     }
 
     function addSave(save) {
       const completeSave = { ...save, zone: save.zone || 'Forest', appearance: ensureAppearance(save) };
-      persistSaves([completeSave]);
+      persistSave(completeSave);
     }
 
     function populateMapGrid() {
