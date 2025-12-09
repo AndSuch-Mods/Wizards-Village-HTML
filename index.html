@@ -704,6 +704,7 @@
     };
 
     const statusText = document.getElementById('statusText');
+    const backToStart = document.getElementById('backToStart');
     const saveList = document.getElementById('saveList');
     const mapOverlay = document.querySelector('#mapView .mapOverlay');
     const mapLabel = document.querySelector('#mapView .mapLabel');
@@ -979,6 +980,14 @@
     document.getElementById('characterBack').addEventListener('click', () => showScreen('start'));
     document.getElementById('zoneBack').addEventListener('click', () => showScreen('character'));
     document.getElementById('gameBack').addEventListener('click', () => showScreen('start'));
+
+    if (backToStart) {
+      backToStart.addEventListener('click', () => {
+        currentCharacter = null;
+        setCharacterMenu(false);
+        showScreen('start');
+      });
+    }
 
     document.getElementById('createCharacter').addEventListener('click', () => {
       const name = document.getElementById('charName').value.trim() || 'Apprentice';
