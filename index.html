@@ -819,7 +819,11 @@
         loadBtn.className = 'btn secondary';
         loadBtn.textContent = 'Load';
         loadBtn.addEventListener('click', () => {
-          currentCharacter = { ...save, appearance: ensureAppearance(save) };
+          currentCharacter = {
+            ...save,
+            zone: save.zone || 'Forest',
+            appearance: ensureAppearance(save),
+          };
           showScreen('game');
         });
 
@@ -843,7 +847,7 @@
     }
 
     function addSave(save) {
-      const completeSave = { ...save, appearance: ensureAppearance(save) };
+      const completeSave = { ...save, zone: save.zone || 'Forest', appearance: ensureAppearance(save) };
       persistSaves([completeSave]);
     }
 
@@ -911,6 +915,7 @@
     function hydrateGameUI() {
       if (!currentCharacter) return;
       currentCharacter.appearance = ensureAppearance(currentCharacter);
+      currentCharacter.zone = currentCharacter.zone || 'Forest';
       document.getElementById('heroName').textContent = currentCharacter.name;
       document.getElementById('heroFocus').textContent = `Focus: ${currentCharacter.focus} • Zone: ${currentCharacter.zone}`;
       syncGearControls(currentCharacter.appearance);
