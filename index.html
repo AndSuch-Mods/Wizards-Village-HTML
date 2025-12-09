@@ -276,6 +276,70 @@
       transform-origin: bottom;
     }
 
+    .resourceGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .resourceCard {
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .resourceCard h5 {
+      letter-spacing: 0.06em;
+      color: #d6ddff;
+      font-size: 0.95rem;
+    }
+
+    .tagRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      background: rgba(156, 209, 100, 0.12);
+      color: #cfe6a6;
+      border: 1px solid var(--outline);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+
+    .resourceCard ul {
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .codeBlock {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--outline);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: #e7ecff;
+      font-size: 0.85rem;
+      line-height: 1.35;
+      overflow-x: auto;
+    }
+
+    .legendList {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 6px;
+      color: var(--muted);
+    }
+
     .avatar .hat {
       position: absolute;
       top: 0;
@@ -636,9 +700,140 @@
                 </ul>
               </div>
 
-              <div id="map" class="tabContent" role="tabpanel">
-                <h4>World map</h4>
-              </div>
+      <div id="map" class="tabContent" role="tabpanel">
+        <h4>World map</h4>
+        <p style="color: var(--muted); line-height: 1.5;">
+          Cozy 3/4 top-down fantasy kit: muted forest greens, warm lantern gold, cool slate shadows,
+          rounded silhouettes, and tiles readable at 64×64. Everything below is scoped to the new mage
+          tower starting area and its nearby village road.
+        </p>
+
+        <div class="resourceGrid">
+          <div class="resourceCard">
+            <h5>Town tileset (64×64)</h5>
+            <div class="tagRow">
+              <span class="tag">cobblestone</span>
+              <span class="tag">lantern glow</span>
+              <span class="tag">warm timber</span>
+              <span class="tag">shadowed edges</span>
+            </div>
+            <ul>
+              <li>Ground: cobblestone loops, dirt side paths, mossy grass tufts, soft shadow vignette corners.</li>
+              <li>Architecture: timber walls with stone footings, mossy teal shingles, chimney, dormer, stone stoop.</li>
+              <li>Details: wooden floor planks, double + single doors, shuttered + glowing windows, hanging sign post,
+                free-standing lantern post, stacked crates/barrels.</li>
+              <li>All ground + wall tiles align on a 64px grid with seamless edges and mirrored variants.</li>
+            </ul>
+          </div>
+
+          <div class="resourceCard">
+            <h5>Forest &amp; mage tower tileset (64×64)</h5>
+            <div class="tagRow">
+              <span class="tag">fern + bush</span>
+              <span class="tag">runic stone</span>
+              <span class="tag">tower base</span>
+            </div>
+            <ul>
+              <li>Ground: pine-needle forest floor, packed dirt curves, grassy clearing patches, edge shadow tiles for dense woods.</li>
+              <li>Flora + scatter: layered bushes, ferns, mushrooms in red + umber, stumps (fresh + mossy),
+                fallen log halves, pebble + boulder clusters.</li>
+              <li>Tower: round stone wall bands, curved roof base, rune-etched entry stone, door + steps,
+                glowing windows, subtle magic floor runes, planter pots.</li>
+              <li>Forest boundary tiles form a soft tree wall with darker silhouettes and teal nightfall shadows.</li>
+            </ul>
+          </div>
+
+          <div class="resourceCard">
+            <h5>Player characters</h5>
+            <div class="tagRow">
+              <span class="tag">male</span>
+              <span class="tag">female</span>
+              <span class="tag">3 frames × 4 dirs</span>
+            </div>
+            <ul>
+              <li>Proportions match reference: 64px tall, rounded faces, soft outlines.</li>
+              <li>Directions: up / down / left / right with idle + two-step walk (mid-step, opposite step).</li>
+              <li>Outfits: linen tunic, leather belt, boots; palette in moss, dusk blue, charcoal shadow ramps.</li>
+              <li>Highlights stay warm; shadows drift into blue-violet for dusk mood.</li>
+            </ul>
+          </div>
+
+          <div class="resourceCard">
+            <h5>NPC roster</h5>
+            <div class="tagRow">
+              <span class="tag">blacksmith</span>
+              <span class="tag">herbalist</span>
+              <span class="tag">town guard</span>
+              <span class="tag">child</span>
+            </div>
+            <ul>
+              <li>Shared scale/style with players, soft earth palette with warm rim lights.</li>
+              <li>Each has 4 directions with 2–3 walk frames; idle doubles as frame one.</li>
+              <li>Visual hooks: apron + hammer (smith), satchel + herb wreath (herbalist),
+                short cloak + spear (guard), oversized tunic + sling bag (child).</li>
+              <li>Silhouettes stay readable when downscaled; outlines stay rounded and low-contrast.</li>
+            </ul>
+          </div>
+
+          <div class="resourceCard">
+            <h5>Starting area map (64px grid)</h5>
+            <div class="codeBlock" aria-label="Tile grid layout">
+              <pre style="margin: 0;">
+TTTTTTTTTTTTT
+TGGGGGGGGGGGT
+TGbbbGPbbbGGT
+TGbGPPGGPbGGT
+TGGPPMTPPGGGT
+TGPPrDDDPPGGT
+TGGPPMWPPGGGT
+TGbGPPGGPbGGT
+TGbbbGPbbbGGT
+TGGGGGGGGGGGT
+TTTTTTTTTTTTT
+              </pre>
+            </div>
+            <div class="legendList">
+              <span><strong>T</strong> – tree edge / forest wall</span>
+              <span><strong>G</strong> – grass clearing tile</span>
+              <span><strong>P</strong> – packed dirt path</span>
+              <span><strong>M</strong> – mushrooms</span>
+              <span><strong>r</strong> – round stump</span>
+              <span><strong>b</strong> – bush / fern clusters</span>
+              <span><strong>W</strong> – glowing tower window tile</span>
+              <span><strong>D</strong> – tower door + stone steps</span>
+              <span><strong>T</strong> center ring wraps tower base tiles.</span>
+            </div>
+            <p style="color: var(--muted);">
+              The tower sits center with a looping path to the south and branches east/west; mushrooms and stumps
+              mark points of interest for early foraging. Edges use darker forest wall tiles to vignette the clearing.
+            </p>
+          </div>
+
+          <div class="resourceCard">
+            <h5>File structure</h5>
+            <div class="codeBlock" aria-label="Planned asset folders">
+              <pre style="margin: 0;">
+art/
+  tilesets/
+    town_tileset.png
+    forest_tileset.png
+    tower_tileset.png
+  characters/
+    player_male_spritesheet.png
+    player_female_spritesheet.png
+  npcs/
+    blacksmith_spritesheet.png
+    herbalist_spritesheet.png
+    guard_spritesheet.png
+    child_spritesheet.png
+maps/
+  tower_clearing_64x64.json
+              </pre>
+            </div>
+            <p style="color: var(--muted);">Tilesets are cuttable on a 64×64 grid; sprite sheets pack 3×4 frames per row for quick import.</p>
+          </div>
+        </div>
+      </div>
 
               <div id="people" class="tabContent" role="tabpanel">
                 <h4>People nearby</h4>
