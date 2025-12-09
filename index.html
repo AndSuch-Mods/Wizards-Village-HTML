@@ -705,7 +705,6 @@
 
     const statusText = document.getElementById('statusText');
     const saveList = document.getElementById('saveList');
-    const backButton = document.getElementById('backToStart');
     const mapOverlay = document.querySelector('#mapView .mapOverlay');
     const mapLabel = document.querySelector('#mapView .mapLabel');
     const mapSubtitle = document.getElementById('mapSubtitle');
@@ -980,7 +979,6 @@
     document.getElementById('characterBack').addEventListener('click', () => showScreen('start'));
     document.getElementById('zoneBack').addEventListener('click', () => showScreen('character'));
     document.getElementById('gameBack').addEventListener('click', () => showScreen('start'));
-    backButton.addEventListener('click', () => showScreen('start'));
 
     document.getElementById('createCharacter').addEventListener('click', () => {
       const name = document.getElementById('charName').value.trim() || 'Apprentice';
