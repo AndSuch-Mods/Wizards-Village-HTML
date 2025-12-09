@@ -22,24 +22,22 @@
 
     body {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin: 0;
       background: var(--bg);
       color: #e7ecff;
-      padding: 32px 18px;
+      overflow: hidden;
     }
 
     main {
-      width: min(1200px, 100%);
-      background: rgba(5, 7, 20, 0.8);
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 7, 20, 0.85);
       border: 1px solid var(--outline);
-      border-radius: 18px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
-      padding: 26px;
+      box-sizing: border-box;
+      padding: 20px;
       display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 20px;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
     }
 
     header {
@@ -57,16 +55,12 @@
       font-size: 1.4rem;
     }
 
-    header p {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
     #screenWrapper {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 16px;
+      height: 100%;
     }
 
     .panel {
@@ -78,7 +72,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-height: 280px;
+      min-height: 0;
+      height: 100%;
     }
 
     .panel h2 {
@@ -86,11 +81,6 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #d6ddff;
-    }
-
-    .panel p {
-      color: var(--muted);
-      line-height: 1.5;
     }
 
     button, input, select {
@@ -180,27 +170,12 @@
     .saveCard strong { color: #e7ecff; }
     .saveCard span { color: var(--muted); font-size: 0.85rem; }
 
-    #preview {
-      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 12px, rgba(255,255,255,0.05) 12px 24px),
-                  radial-gradient(circle at 20% 20%, rgba(156, 209, 100, 0.2), transparent 34%),
-                  radial-gradient(circle at 70% 60%, rgba(127, 169, 255, 0.15), transparent 44%),
-                  #0f1226;
-      border-radius: 14px;
-      border: 1px solid var(--outline);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 320px;
-      color: var(--muted);
-      text-align: center;
-      padding: 18px;
-    }
-
     .gameLayout {
       display: flex;
       flex-direction: column;
       gap: 14px;
+      height: 100%;
+      position: relative;
     }
 
     .mapPanel {
@@ -212,6 +187,9 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      flex: 1;
+      min-height: 0;
+      position: relative;
     }
 
     .mapPanel h3 {
@@ -243,8 +221,8 @@
       border: 1px solid var(--outline);
       position: relative;
       overflow: hidden;
-      aspect-ratio: 16 / 9;
-      min-height: 420px;
+      flex: 1;
+      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -405,14 +383,19 @@
     }
 
     .characterMenu {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(5, 7, 20, 0.96);
       border: 1px solid var(--outline);
       border-radius: 12px;
       padding: 14px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
       display: none;
       flex-direction: column;
       gap: 12px;
+      position: absolute;
+      inset: 30px;
+      max-width: 540px;
+      overflow: auto;
+      z-index: 3;
     }
 
     .characterMenu.active { display: flex; }
@@ -513,16 +496,13 @@
     <header>
       <div>
         <h1>MAGE VALLEY</h1>
-        <p>Prototype menu flow — character ➜ zone ➜ placeholder map</p>
       </div>
       <button class="btn ghost" id="backToStart" aria-label="Back to start menu">Back</button>
     </header>
 
     <section id="screenWrapper">
       <div class="panel">
-        <h2>Flow</h2>
         <div id="startScreen" class="screen active" role="group" aria-label="Start screen">
-          <p>Begin a new save file or continue an existing journey. Only one screen is visible at a time.</p>
           <div class="stack">
             <button class="btn" id="newCharacter">New Character</button>
             <button class="btn secondary" id="openSaves">Load Save</button>
@@ -530,13 +510,11 @@
         </div>
 
         <div id="saveScreen" class="screen" role="group" aria-label="Save selection">
-          <p>Select a save to load. Saves are stored in your browser for this prototype.</p>
           <div class="saveList" id="saveList"></div>
           <button class="btn ghost" id="saveBack">Back to Start</button>
         </div>
 
         <div id="characterScreen" class="screen" role="group" aria-label="Character creation">
-          <p>Create your apprentice before entering the valley.</p>
           <div class="field">
             <label for="charName">Name</label>
             <input id="charName" type="text" placeholder="E.g., Liora" />
@@ -554,7 +532,6 @@
         </div>
 
         <div id="zoneScreen" class="screen" role="group" aria-label="Zone selection">
-          <p>Choose a starting zone. More locations will appear later.</p>
           <div class="stack">
             <button class="btn" data-zone="Forest" id="startForest">Forest (prototype)</button>
           </div>
@@ -562,12 +539,14 @@
         </div>
 
         <div id="gameScreen" class="screen" role="group" aria-label="Placeholder game area">
-          <p>Loading the zone will display a placeholder map. Press C to open your character menu while exploring.</p>
           <div class="gameLayout">
             <div class="mapPanel">
               <div class="flexBetween">
-                <h3 id="mapTitle">FOREST</h3>
-                <span class="badge" id="zoneBadge">Safe zone</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <h3 id="mapTitle">FOREST</h3>
+                  <span class="badge" id="zoneBadge">Safe zone</span>
+                </div>
+                <button class="btn ghost" id="openCharacterMenu">Character Menu</button>
               </div>
               <div id="mapView" aria-label="Zone map">
                 <div class="mapOverlay" aria-hidden="true"></div>
@@ -624,7 +603,6 @@
               </div>
 
               <div id="inventory" class="tabContent active" role="tabpanel">
-                <p style="color: var(--muted)">Swap hats, shirts, pants, and robes. Choices are saved with your character.</p>
                 <div class="inlineFields">
                   <div class="field">
                     <label for="hatStyle">Hat</label>
@@ -652,7 +630,6 @@
 
               <div id="quests" class="tabContent" role="tabpanel">
                 <h4>Active quests</h4>
-                <p style="color: var(--muted)">Prototype hooks only — quests will populate once implemented.</p>
                 <ul>
                   <li>Meet the village elder at the hilltop shrine.</li>
                   <li>Gather three sprigs of moonmint.</li>
@@ -661,12 +638,10 @@
 
               <div id="map" class="tabContent" role="tabpanel">
                 <h4>World map</h4>
-                <p style="color: var(--muted)">The grid above represents the current zone. Fast travel and markers will arrive later.</p>
               </div>
 
               <div id="people" class="tabContent" role="tabpanel">
                 <h4>People nearby</h4>
-                <p style="color: var(--muted)">No NPCs loaded yet. This tab will list contacts and their relationship states.</p>
               </div>
 
               <div id="settings" class="tabContent" role="tabpanel">
@@ -686,7 +661,6 @@
               </div>
 
               <div id="save" class="tabContent" role="tabpanel">
-                <p>Save your appearance choices and return to the main menu when ready.</p>
                 <div class="stack">
                   <button class="btn secondary" id="saveProgress">Save Progress</button>
                   <button class="btn ghost" id="gameBack">Exit to Start</button>
@@ -697,12 +671,6 @@
         </div>
       </div>
 
-      <div class="panel" aria-live="polite">
-        <h2>Preview</h2>
-        <div id="preview">
-          <div id="previewText">Select an option to see the current screen.</div>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -715,14 +683,13 @@
       game: document.getElementById('gameScreen'),
     };
 
-    const previewText = document.getElementById('previewText');
-    const previewPanel = document.getElementById('preview')?.closest('.panel');
     const saveList = document.getElementById('saveList');
     const backButton = document.getElementById('backToStart');
     const mapOverlay = document.querySelector('#mapView .mapOverlay');
     const mapHero = document.getElementById('mapHero');
     const inventoryList = document.getElementById('inventoryList');
     const characterMenu = document.getElementById('characterMenu');
+    const openCharacterMenu = document.getElementById('openCharacterMenu');
     const closeCharacterMenu = document.getElementById('closeCharacterMenu');
     const gearSelects = {
       hatStyle: document.getElementById('hatStyle'),
@@ -773,9 +740,7 @@
       return { ...getDefaultAppearance(), ...(base?.appearance || {}) };
     }
 
-    function setPreview(text) {
-      previewText.textContent = text;
-    }
+    function setPreview() {}
 
     function hideAllScreens() {
       Object.values(screens).forEach((el) => el.classList.remove('active'));
@@ -787,29 +752,20 @@
       if (target) {
         target.classList.add('active');
       }
-      if (previewPanel) {
-        previewPanel.style.display = screenName === 'game' ? 'none' : 'flex';
-      }
       switch (screenName) {
         case 'start':
-          setPreview('Start menu — pick New Character or Load Save.');
           break;
         case 'save':
-          setPreview('Save list — choose a save slot to load.');
           renderSaves();
           break;
         case 'character':
-          setPreview('Character creation — enter a name and focus.');
           break;
         case 'zone':
-          const name = currentCharacter?.name || 'your apprentice';
-          setPreview(`Zone select — ${name} can begin in the Forest.`);
           break;
         case 'game':
           const zone = currentCharacter?.zone || 'Forest';
           document.getElementById('mapTitle').textContent = zone.toUpperCase();
           document.getElementById('zoneBadge').textContent = zone.toLowerCase() === 'forest' ? 'Safe zone' : 'Zone loaded';
-          setPreview('Placeholder game area — map grid and character UI ready.');
           activateTab('inventory');
           hydrateGameUI();
           toggleCharacterMenu(false);
@@ -821,7 +777,9 @@
       try {
         const raw = localStorage.getItem(saveKey);
         const parsed = raw ? JSON.parse(raw) : [];
-        return parsed.map((save) => ({ ...save, appearance: ensureAppearance(save) }));
+        const save = Array.isArray(parsed) ? parsed[0] : parsed;
+        if (!save) return [];
+        return [{ ...save, appearance: ensureAppearance(save) }];
       } catch (err) {
         console.warn('Unable to load saves', err);
         return [];
@@ -847,28 +805,46 @@
         return;
       }
 
-      saves.forEach((save, index) => {
+      saves.forEach((save) => {
         const card = document.createElement('div');
         card.className = 'saveCard';
         const info = document.createElement('div');
         info.innerHTML = `<strong>${save.name}</strong><br><span>Focus: ${save.focus} • Zone: ${save.zone || 'Forest'}</span>`;
-        const btn = document.createElement('button');
-        btn.className = 'btn secondary';
-        btn.textContent = 'Load';
-        btn.addEventListener('click', () => {
-          currentCharacter = save;
-          showScreen('zone');
+
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.gap = '8px';
+
+        const loadBtn = document.createElement('button');
+        loadBtn.className = 'btn secondary';
+        loadBtn.textContent = 'Load';
+        loadBtn.addEventListener('click', () => {
+          currentCharacter = { ...save, appearance: ensureAppearance(save) };
+          showScreen('game');
         });
-        card.append(info, btn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn ghost';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', () => {
+          persistSaves([]);
+          if (currentCharacter?.name === save.name && currentCharacter?.focus === save.focus) {
+            currentCharacter = null;
+            toggleCharacterMenu(false);
+            showScreen('start');
+          }
+          renderSaves();
+        });
+
+        actions.append(loadBtn, deleteBtn);
+        card.append(info, actions);
         saveList.appendChild(card);
       });
     }
 
     function addSave(save) {
-      const saves = loadSaves();
       const completeSave = { ...save, appearance: ensureAppearance(save) };
-      saves.unshift(completeSave);
-      persistSaves(saves.slice(0, 6));
+      persistSaves([completeSave]);
     }
 
     function populateMapGrid() {
@@ -995,7 +971,6 @@
       const name = document.getElementById('charName').value.trim() || 'Apprentice';
       const focus = document.getElementById('charFocus').value;
       currentCharacter = { name, focus, zone: 'Forest', appearance: getDefaultAppearance() };
-      addSave(currentCharacter);
       showScreen('zone');
     });
 
@@ -1017,6 +992,7 @@
       btn.addEventListener('click', () => activateTab(btn.dataset.tabTarget));
     });
 
+    openCharacterMenu.addEventListener('click', () => toggleCharacterMenu(true));
     closeCharacterMenu.addEventListener('click', () => toggleCharacterMenu(false));
 
     document.addEventListener('keydown', (event) => {
