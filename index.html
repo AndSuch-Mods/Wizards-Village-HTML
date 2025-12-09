@@ -779,7 +779,7 @@
         const parsed = raw ? JSON.parse(raw) : [];
         const save = Array.isArray(parsed) ? parsed[0] : parsed;
         if (!save) return [];
-        return [{ ...save, appearance: ensureAppearance(save) }];
+        return [{ ...save, zone: save.zone || 'Forest', appearance: ensureAppearance(save) }];
       } catch (err) {
         console.warn('Unable to load saves', err);
         return [];
