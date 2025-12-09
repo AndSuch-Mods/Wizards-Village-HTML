@@ -198,13 +198,12 @@
     }
 
     .gameLayout {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 14px;
-      align-items: stretch;
     }
 
-    .mapPanel, .characterPanel {
+    .mapPanel {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--outline);
       border-radius: 12px;
@@ -215,7 +214,7 @@
       gap: 10px;
     }
 
-    .mapPanel h3, .characterPanel h3 {
+    .mapPanel h3 {
       letter-spacing: 0.08em;
       font-size: 0.95rem;
       color: #d6ddff;
@@ -244,16 +243,21 @@
       border: 1px solid var(--outline);
       position: relative;
       overflow: hidden;
+      aspect-ratio: 16 / 9;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #mapView .mapOverlay {
       position: absolute;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(4, 1fr);
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(6, 1fr);
       gap: 4px;
-      padding: 10px;
+      padding: 14px;
     }
 
     #mapView .tile {
@@ -274,34 +278,24 @@
       letter-spacing: 0.06em;
     }
 
-    .characterHeader {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+    .heroMarker {
+      position: absolute;
+      bottom: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,0.45));
     }
 
-    #characterPreview {
+    #mapHero {
       --hat: #8aa7ff;
       --shirt: #82e0b5;
       --pants: #6d7a9a;
       --robe: #d3b7ff;
       position: relative;
-      width: 120px;
-      height: 160px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--outline);
-      border-radius: 12px;
-      display: grid;
-      place-items: center;
-      padding: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
-    }
-
-    .avatar {
-      position: relative;
       width: 80px;
       height: 120px;
+      transform: scale(0.9);
+      transform-origin: bottom;
     }
 
     .avatar .hat {
@@ -381,6 +375,25 @@
       box-shadow: 0 0 12px rgba(124,192,255,0.8);
     }
 
+    #characterPreview {
+      --hat: #8aa7ff;
+      --shirt: #82e0b5;
+      --pants: #6d7a9a;
+      --robe: #d3b7ff;
+      position: relative;
+      width: 120px;
+      height: 160px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .avatar { position: relative; width: 80px; height: 120px; }
+
     .pieceLabels {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -391,27 +404,52 @@
       text-align: center;
     }
 
+    .characterMenu {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .characterMenu.active { display: flex; }
+
+    .characterMenuHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     .tabBar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 8px;
+      display: flex;
+      gap: 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--outline);
+      border-radius: 10px;
+      padding: 6px;
     }
 
     .tabBar button {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--outline);
-      border-radius: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
       color: #e7ecff;
-      padding: 10px 8px;
+      padding: 8px 10px;
       cursor: pointer;
       letter-spacing: 0.04em;
-      transition: transform 0.1s ease, border-color 0.1s ease;
+      transition: transform 0.1s ease, border-color 0.1s ease, background-color 0.1s ease;
     }
 
     .tabBar button.active {
       border-color: var(--accent);
+      background: rgba(156,209,100,0.12);
       box-shadow: 0 10px 24px rgba(0,0,0,0.25);
       transform: translateY(-1px);
+      color: #dff7b6;
     }
 
     .tabContent {
@@ -463,15 +501,10 @@
 
     .flexBetween { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 
-    @media (max-width: 1040px) {
-      .gameLayout { grid-template-columns: 1fr; }
-      .characterHeader { flex-direction: column; align-items: flex-start; }
-      #characterPreview { align-self: center; }
-    }
-
     @media (max-width: 860px) {
       main { grid-template-columns: 1fr; }
       #screenWrapper { grid-template-columns: 1fr; }
+      #mapView { min-height: 280px; }
     }
   </style>
 </head>
@@ -529,41 +562,55 @@
         </div>
 
         <div id="gameScreen" class="screen" role="group" aria-label="Placeholder game area">
-          <p>Loading the zone will display a placeholder map. Use this screen to test layout transitions.</p>
+          <p>Loading the zone will display a placeholder map. Press C to open your character menu while exploring.</p>
           <div class="gameLayout">
             <div class="mapPanel">
               <div class="flexBetween">
                 <h3 id="mapTitle">FOREST</h3>
                 <span class="badge" id="zoneBadge">Safe zone</span>
               </div>
-              <div id="mapView" aria-label="Zone map preview">
+              <div id="mapView" aria-label="Zone map">
                 <div class="mapOverlay" aria-hidden="true"></div>
+                <div class="heroMarker" aria-label="Your character">
+                  <div id="mapHero" class="avatar" aria-hidden="true">
+                    <div class="hat"></div>
+                    <div class="head"></div>
+                    <div class="robe"></div>
+                    <div class="shirt"></div>
+                    <div class="pants"></div>
+                    <div class="staff"></div>
+                    <div class="orb"></div>
+                  </div>
+                </div>
                 <div class="mapLabel">Emerald Approach — prototype map</div>
               </div>
             </div>
 
-            <div class="characterPanel">
-              <div class="characterHeader">
+            <div class="characterMenu" id="characterMenu" aria-label="Character menu" aria-hidden="true">
+              <div class="characterMenuHeader">
                 <div>
                   <h3 id="heroName">Apprentice</h3>
                   <p id="heroFocus" style="color: var(--muted)">Focus: Elemental • Zone: Forest</p>
                 </div>
-                <div id="characterPreview" aria-label="Character preview">
-                  <div class="avatar">
-                    <div class="hat" aria-hidden="true"></div>
-                    <div class="head" aria-hidden="true"></div>
-                    <div class="robe" aria-hidden="true"></div>
-                    <div class="shirt" aria-hidden="true"></div>
-                    <div class="pants" aria-hidden="true"></div>
-                    <div class="staff" aria-hidden="true"></div>
-                    <div class="orb" aria-hidden="true"></div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div id="characterPreview" aria-label="Character preview">
+                    <div class="avatar">
+                      <div class="hat" aria-hidden="true"></div>
+                      <div class="head" aria-hidden="true"></div>
+                      <div class="robe" aria-hidden="true"></div>
+                      <div class="shirt" aria-hidden="true"></div>
+                      <div class="pants" aria-hidden="true"></div>
+                      <div class="staff" aria-hidden="true"></div>
+                      <div class="orb" aria-hidden="true"></div>
+                    </div>
+                    <div class="pieceLabels">
+                      <span id="hatLabel">Wide Brim</span>
+                      <span id="robeLabel">Robe: Twilight</span>
+                      <span id="shirtLabel">Tunic: Meadow</span>
+                      <span id="pantsLabel">Pants: Midnight</span>
+                    </div>
                   </div>
-                  <div class="pieceLabels">
-                    <span id="hatLabel">Wide Brim</span>
-                    <span id="robeLabel">Robe: Twilight</span>
-                    <span id="shirtLabel">Tunic: Meadow</span>
-                    <span id="pantsLabel">Pants: Midnight</span>
-                  </div>
+                  <button class="btn ghost" id="closeCharacterMenu" aria-label="Close character menu">Close (C)</button>
                 </div>
               </div>
 
@@ -669,10 +716,14 @@
     };
 
     const previewText = document.getElementById('previewText');
+    const previewPanel = document.getElementById('preview')?.closest('.panel');
     const saveList = document.getElementById('saveList');
     const backButton = document.getElementById('backToStart');
     const mapOverlay = document.querySelector('#mapView .mapOverlay');
+    const mapHero = document.getElementById('mapHero');
     const inventoryList = document.getElementById('inventoryList');
+    const characterMenu = document.getElementById('characterMenu');
+    const closeCharacterMenu = document.getElementById('closeCharacterMenu');
     const gearSelects = {
       hatStyle: document.getElementById('hatStyle'),
       hatColor: document.getElementById('hatColor'),
@@ -736,6 +787,9 @@
       if (target) {
         target.classList.add('active');
       }
+      if (previewPanel) {
+        previewPanel.style.display = screenName === 'game' ? 'none' : 'flex';
+      }
       switch (screenName) {
         case 'start':
           setPreview('Start menu — pick New Character or Load Save.');
@@ -752,12 +806,13 @@
           setPreview(`Zone select — ${name} can begin in the Forest.`);
           break;
         case 'game':
-          const zone = currentCharacter?.zone || 'FOREST';
+          const zone = currentCharacter?.zone || 'Forest';
           document.getElementById('mapTitle').textContent = zone.toUpperCase();
-          document.getElementById('zoneBadge').textContent = zone === 'Forest' ? 'Safe zone' : 'Zone loaded';
+          document.getElementById('zoneBadge').textContent = zone.toLowerCase() === 'forest' ? 'Safe zone' : 'Zone loaded';
           setPreview('Placeholder game area — map grid and character UI ready.');
           activateTab('inventory');
           hydrateGameUI();
+          toggleCharacterMenu(false);
           break;
       }
     }
@@ -819,7 +874,7 @@
     function populateMapGrid() {
       if (!mapOverlay) return;
       mapOverlay.innerHTML = '';
-      for (let i = 0; i < 24; i += 1) {
+      for (let i = 0; i < 72; i += 1) {
         const tile = document.createElement('div');
         tile.className = 'tile';
         mapOverlay.appendChild(tile);
@@ -856,10 +911,13 @@
 
     function applyAppearance(appearance) {
       const preview = document.getElementById('characterPreview');
-      preview.style.setProperty('--hat', colorPalette[appearance.hatColor] || colorPalette.Dusk);
-      preview.style.setProperty('--shirt', colorPalette[appearance.shirtColor] || colorPalette.Meadow);
-      preview.style.setProperty('--pants', colorPalette[appearance.pantsColor] || colorPalette.Midnight);
-      preview.style.setProperty('--robe', colorPalette[appearance.robeColor] || colorPalette.Twilight);
+      const targets = [preview, mapHero].filter(Boolean);
+      targets.forEach((target) => {
+        target.style.setProperty('--hat', colorPalette[appearance.hatColor] || colorPalette.Dusk);
+        target.style.setProperty('--shirt', colorPalette[appearance.shirtColor] || colorPalette.Meadow);
+        target.style.setProperty('--pants', colorPalette[appearance.pantsColor] || colorPalette.Midnight);
+        target.style.setProperty('--robe', colorPalette[appearance.robeColor] || colorPalette.Twilight);
+      });
       gearLabels.hat.textContent = appearance.hatStyle;
       gearLabels.robe.textContent = `Robe: ${appearance.robeColor}`;
       gearLabels.shirt.textContent = `Tunic: ${appearance.shirtColor}`;
@@ -908,6 +966,15 @@
       });
     }
 
+    function toggleCharacterMenu(forceState) {
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : !characterMenu.classList.contains('active');
+      characterMenu.classList.toggle('active', shouldOpen);
+      characterMenu.setAttribute('aria-hidden', (!shouldOpen).toString());
+      if (shouldOpen) {
+        activateTab(document.querySelector('[data-tab-target].active')?.dataset.tabTarget || 'inventory');
+      }
+    }
+
     // Event wiring
     document.getElementById('newCharacter').addEventListener('click', () => {
       currentCharacter = null;
@@ -950,6 +1017,18 @@
       btn.addEventListener('click', () => activateTab(btn.dataset.tabTarget));
     });
 
+    closeCharacterMenu.addEventListener('click', () => toggleCharacterMenu(false));
+
+    document.addEventListener('keydown', (event) => {
+      const targetTag = event.target.tagName.toLowerCase();
+      const typingField = targetTag === 'input' || targetTag === 'select' || targetTag === 'textarea';
+      if (typingField) return;
+      if (event.key.toLowerCase() === 'c' && screens.game.classList.contains('active')) {
+        event.preventDefault();
+        toggleCharacterMenu();
+      }
+    });
+
     Object.values(gearSelects).forEach((select) => {
       select.addEventListener('change', handleGearChange);
     });
@@ -959,6 +1038,7 @@
     populateGearSelects();
     populateInventoryList();
     showScreen('start');
+    toggleCharacterMenu(false);
   </script>
 </body>
 </html>
