@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mage Valley – Quests & Saves Prototype (Fixed)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #151a35, #050714 55%, #020309 100%);
+      color: #f5f5ff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    #gameWrapper {
+      display: flex;
+      gap: 16px;
+    }
+
+    #game {
+      border-radius: 12px;
+      border: 2px solid #3a4d7a;
+      background: #1a1d30;
+      image-rendering: pixelated;
+    }
+
+    #ui {
+      min-width: 260px;
+      max-width: 280px;
+      background: radial-gradient(circle at top left, #29345a, #161827 60%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #e3ecff;
+      margin-bottom: 2px;
+    }
+
+    #subtitle {
+      font-size: 0.8rem;
+      color: #a9b4e8;
+      margin-bottom: 6px;
+    }
+
+    #stats, #location {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(9, 13, 35, 0.85);
+      border: 1px solid rgba(87, 105, 177, 0.5);
+    }
+
+    #log {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      min-height: 90px;
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(7, 10, 28, 0.9);
+      border: 1px solid rgba(145, 164, 236, 0.3);
+    }
+
+    #log p {
+      margin-bottom: 3px;
+    }
+
+    #help {
+      font-size: 0.75rem;
+      color: #b0b7e3;
+      background: rgba(10, 16, 44, 0.8);
+      border-radius: 8px;
+      padding: 6px 8px;
+      border: 1px dashed rgba(120, 137, 214, 0.6);
+    }
+
+    button {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 0;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #5f8cff, #9c7cff);
+      color: #0b1020;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+      filter: brightness(1.08);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+      filter: brightness(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      filter: grayscale(0.3);
+    }
+
+    /* Main menu overlay */
+    #mainMenu {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(107, 131, 255, 0.25), rgba(3, 5, 20, 0.96));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    #mainMenuInner {
+      background: rgba(8, 11, 32, 0.98);
+      border-radius: 18px;
+      padding: 22px 26px 18px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(114, 138, 233, 0.8);
+    }
+
+    #mainMenuTitle {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    #mainMenuSubtitle {
+      font-size: 0.9rem;
+      color: #c0c7ff;
+      margin-bottom: 18px;
+    }
+
+    .menuButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    #mainMenuSmall {
+      font-size: 0.8rem;
+      color: #a5aee0;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Character / Inventory / Quests menu */
+    #characterMenu {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 5, 18, 0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+    }
+
+    #characterMenuInner {
+      background: radial-gradient(circle at top left, #252a4c, #111526 60%);
+      border-radius: 18px;
+      padding: 18px 20px 16px;
+      width: 520px;
+      max-width: 96%;
+      box-shadow: 0 15px 38px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(125, 145, 235, 0.7);
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr;
+      gap: 10px 16px;
+    }
+
+    #characterMenuHeader {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    #characterMenuTitle {
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .charSectionTitle {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+      color: #c3cbff;
+    }
+
+    .charSection {
+      font-size: 0.82rem;
+      background: rgba(9, 12, 33, 0.9);
+      border-radius: 10px;
+      padding: 8px 9px;
+      border: 1px solid rgba(98, 119, 219, 0.6);
+      min-height: 60px;
+    }
+
+    #charMenuClose {
+      background: transparent;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 1rem;
+      box-shadow: none;
+      background: rgba(42, 53, 106, 0.9);
+      color: #e6ebff;
+    }
+
+    #charMenuSystemButtons {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    #charMenuSystemNote {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      color: #c0c7ff;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main Menu Overlay -->
+  <div id="mainMenu">
+    <div id="mainMenuInner">
+      <div id="mainMenuTitle">MAGE VALLEY</div>
+      <div id="mainMenuSubtitle">A tiny Stardew-like about a town of mages</div>
+      <div class="menuButtons">
+        <button id="btnNewGame">New Apprentice (New Game)</button>
+        <button id="btnContinue">Continue</button>
+      </div>
+      <div id="mainMenuSmall">
+        Move: W/A/S/D or arrows • Interact: E / Space<br>
+        Character / Inventory / Quests: <strong>C</strong> • Sleep in tower: button
+      </div>
+    </div>
+  </div>
+
+  <!-- Character / Inventory / Quests Menu -->
+  <div id="characterMenu" class="hidden">
+    <div id="characterMenuInner">
+      <div id="characterMenuHeader">
+        <div id="characterMenuTitle">Character &amp; Grimoire</div>
+        <button id="charMenuClose">✕</button>
+      </div>
+
+      <div>
+        <div class="charSectionTitle">Stats &amp; Inventory</div>
+        <div id="charMenuStats" class="charSection"></div>
+      </div>
+
+      <div>
+        <div class="charSectionTitle">Quests</div>
+        <div id="charMenuQuests" class="charSection"></div>
+      </div>
+
+      <div style="grid-column: 1 / -1;">
+        <div class="charSectionTitle">System</div>
+        <div class="charSection">
+          <div id="charMenuSystemText">
+            Manage your save and return to the main menu.
+          </div>
+          <div id="charMenuSystemButtons">
+            <button id="btnSaveGame">Save Game</button>
+            <button id="btnSaveExit">Save &amp; Exit to Main Menu</button>
+          </div>
+          <div id="charMenuSystemNote">
+            Saves use <strong>localStorage</strong>. If your browser blocks it
+            (e.g., from a local file), saving will be disabled.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game -->
+  <div id="gameWrapper">
+    <canvas id="game" width="640" height="480"></canvas>
+    <aside id="ui">
+      <div>
+        <div id="title">Mage Valley</div>
+        <div id="subtitle">A tiny Stardew-like mage town</div>
+      </div>
+      <div id="location">Location: ?</div>
+      <div id="stats"></div>
+      <div id="log"></div>
+      <button id="sleepButton">Sleep in your tower</button>
+      <button id="characterButton">Character Menu (C)</button>
+      <div id="help">
+        <strong>Controls</strong><br/>
+        Move: W/A/S/D or Arrow Keys<br/>
+        Interact / Talk: E or Space<br/>
+        Character / Inventory / Quests: C<br/>
+        Sleep: Sleep button (while in tower)<br/>
+        <br/>
+        Tip: Stand on the mana field to plant or harvest.
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const TILE_SIZE = 32;
+    const MAP_WIDTH = 20;
+    const MAP_HEIGHT = 15;
+
+    const TileType = {
+      GRASS: 0,
+      PATH: 1,
+      HOUSE: 2,
+      FIELD: 3,
+      WATER: 4,
+      TREE: 5,
+      TOWER: 6
+    };
+
+    const TILE_COLORS = {
+      [TileType.GRASS]: "#244f2e",
+      [TileType.PATH]: "#b19372",
+      [TileType.HOUSE]: "#7f4e33",
+      [TileType.FIELD]: "#4a3a18",
+      [TileType.WATER]: "#214c8a",
+      [TileType.TREE]: "#15351f",
+      [TileType.TOWER]: "#4b4d7f"
+    };
+
+    const BLOCKING_TILES = new Set([TileType.HOUSE, TileType.TREE, TileType.WATER, TileType.TOWER]);
+
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const statsEl = document.getElementById("stats");
+    const locationEl = document.getElementById("location");
+    const logEl = document.getElementById("log");
+    const sleepBtn = document.getElementById("sleepButton");
+    const charBtn = document.getElementById("characterButton");
+
+    const mainMenuEl = document.getElementById("mainMenu");
+    const btnNewGame = document.getElementById("btnNewGame");
+    const btnContinue = document.getElementById("btnContinue");
+
+    const characterMenuEl = document.getElementById("characterMenu");
+    const charMenuCloseBtn = document.getElementById("charMenuClose");
+    const charMenuStatsEl = document.getElementById("charMenuStats");
+    const charMenuQuestsEl = document.getElementById("charMenuQuests");
+    const btnSaveGame = document.getElementById("btnSaveGame");
+    const btnSaveExit = document.getElementById("btnSaveExit");
+
+    const SAVE_KEY = "mageValleySave_v1";
+    let saveSupported = false;
+
+    let map = [];
+    let crops = [];
+
+    const player = {
+      x: 10,
+      y: 10,
+      dirX: 0,
+      dirY: -1,
+      maxEnergy: 100,
+      energy: 100,
+      mana: 0,
+      seeds: 3,
+      day: 1,
+      timeTicks: 36
+    };
+
+    const npcs = [
+      {
+        name: "Archmage Elowen",
+        x: 5,
+        y: 6,
+        dialogueIndex: 0,
+        lines: [
+          "Welcome, apprentice. The valley hums with latent mana.",
+          "Harvest mana crystals and help this place awaken.",
+          "As your mana grows, so too will your power and this town."
+        ]
+      }
+    ];
+
+    const baseQuests = [
+      {
+        id: "meet_elowen",
+        title: "Meet Archmage Elowen",
+        description: "Find Archmage Elowen near the cottages and speak with her.",
+        status: "active"
+      },
+      {
+        id: "first_harvest",
+        title: "First Mana Harvest",
+        description: "Harvest and deliver 3 mana crystals to Archmage Elowen.",
+        status: "locked",
+        requiredMana: 3,
+        reward: { seeds: 2 }
+      }
+    ];
+
+    let quests = [];
+
+    const keysDown = {};
+    let inMainMenu = true;
+    let characterMenuOpen = false;
+
+    function initStorage() {
+      try {
+        localStorage.setItem(SAVE_KEY + "_test", "1");
+        localStorage.removeItem(SAVE_KEY + "_test");
+        saveSupported = true;
+      } catch (e) {
+        console.warn("localStorage not available; saves disabled.", e);
+        saveSupported = false;
+      }
+    }
+
+    function cloneQuestsFromBase() {
+      quests = JSON.parse(JSON.stringify(baseQuests));
+    }
+
+    function addLog(msg) {
+      const p = document.createElement("p");
+      p.textContent = msg;
+      logEl.appendChild(p);
+      while (logEl.children.length > 8) {
+        logEl.removeChild(logEl.firstChild);
+      }
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function getTimeString() {
+      const minutes = (player.timeTicks * 10) % (24 * 60);
+      let h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      const ampm = h >= 12 ? "PM" : "AM";
+      if (h === 0) h = 12;
+      else if (h > 12) h -= 12;
+      return h + ":" + String(m).padStart(2, "0") + " " + ampm;
+    }
+
+    function updateStatsPanel() {
+      statsEl.innerHTML =
+        `Day: ${player.day}<br>` +
+        `Time: ${getTimeString()}<br>` +
+        `Energy: ${player.energy}/${player.maxEnergy}<br>` +
+        `Mana Crystals: ${player.mana}<br>` +
+        `Mana Seeds: ${player.seeds}`;
+    }
+
+    function tileName(tile) {
+      switch (tile) {
+        case TileType.GRASS: return "Grassy clearing";
+        case TileType.PATH: return "Stone path";
+        case TileType.HOUSE: return "Mage cottages";
+        case TileType.TOWER: return "Your mage tower";
+        case TileType.FIELD: return "Mana field";
+        case TileType.WATER: return "Moonlit pond";
+        case TileType.TREE: return "Whispering grove";
+        default: return "Unknown";
+      }
+    }
+
+    function updateLocationPanel() {
+      const tile = getTile(player.x, player.y);
+      locationEl.textContent = "Location: " + tileName(tile);
+    }
+
+    function canMoveTo(x, y) {
+      if (x < 0 || y < 0 || x >= MAP_WIDTH || y >= MAP_HEIGHT) return false;
+      const tile = getTile(x, y);
+      return !BLOCKING_TILES.has(tile);
+    }
+
+    function getTile(x, y) {
+      return map[y][x];
+    }
+
+    function setTile(x, y, type) {
+      map[y][x] = type;
+    }
+
+    function getCropAt(x, y) {
+      return crops.find(c => c.x === x && c.y === y);
+    }
+
+    function removeCropAt(x, y) {
+      crops = crops.filter(c => !(c.x === x && c.y === y));
+    }
+
+    function advanceTime(ticks) {
+      player.timeTicks += ticks;
+      if (player.timeTicks >= 144) {
+        addLog("You collapse from exhaustion and are carried back to your tower...");
+        nextDay(true);
+      }
+    }
+
+    function getQuest(id) {
+      return quests.find(q => q.id === id);
+    }
+
+    function questStatusLabel(status) {
+      if (status === "active") return "Active";
+      if (status === "completed") return "Completed";
+      if (status === "locked") return "Locked";
+      return status;
+    }
+
+    function updateQuestUI() {
+      let html = "";
+      if (!quests || quests.length === 0) {
+        html = "<em>No quests yet.</em>";
+      } else {
+        html = "<ul style='list-style:none; padding-left:0;'>";
+        for (const q of quests) {
+          let color = "#e2e6ff";
+          if (q.status === "completed") color = "#8fffb5";
+          else if (q.status === "locked") color = "#a0a5c7";
+          else if (q.status === "active") color = "#f2d28c";
+
+          html += `<li style="margin-bottom:4px;">
+            <span style="color:${color}; font-weight:600;">${q.title}</span><br>
+            <span style="font-size:0.78rem; color:#c8cdf5;">${q.description}</span><br>
+            <span style="font-size:0.72rem; opacity:0.85;">Status: ${questStatusLabel(q.status)}</span>
+          </li>`;
+        }
+        html += "</ul>";
+      }
+      charMenuQuestsEl.innerHTML = html;
+    }
+
+    function updateCharacterMenuStats() {
+      charMenuStatsEl.innerHTML =
+        `<strong>Day ${player.day}</strong> – ${getTimeString()}<br>` +
+        `Energy: ${player.energy}/${player.maxEnergy}<br>` +
+        `Mana Crystals: ${player.mana}<br>` +
+        `Mana Seeds: ${player.seeds}<br>` +
+        `<br>` +
+        `<strong>Known Items</strong><br>` +
+        `• Apprentice Robes (cosmetic)<br>` +
+        `• Beginner's Wand (cosmetic)<br>`;
+    }
+
+    function updateCharacterMenu() {
+      updateCharacterMenuStats();
+      updateQuestUI();
+    }
+
+    function generateWorld() {
+      map = [];
+      for (let y = 0; y < MAP_HEIGHT; y++) {
+        const row = [];
+        for (let x = 0; x < MAP_WIDTH; x++) {
+          row.push(TileType.GRASS);
+        }
+        map.push(row);
+      }
+
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        setTile(x, 7, TileType.PATH);
+      }
+
+      for (let y = 3; y < MAP_HEIGHT; y++) {
+        setTile(10, y, TileType.PATH);
+      }
+
+      for (let y = 4; y <= 6; y++) {
+        for (let x = 3; x <= 5; x++) {
+          setTile(x, y, TileType.HOUSE);
+        }
+      }
+
+      for (let y = 3; y <= 5; y++) {
+        for (let x = 12; x <= 14; x++) {
+          setTile(x, y, TileType.TOWER);
+        }
+      }
+
+      for (let y = 9; y <= 11; y++) {
+        for (let x = 13; x <= 17; x++) {
+          setTile(x, y, TileType.FIELD);
+        }
+      }
+
+      for (let y = 2; y <= 4; y++) {
+        for (let x = 1; x <= 3; x++) {
+          setTile(x, y, TileType.WATER);
+        }
+      }
+
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        setTile(x, 0, TileType.TREE);
+        setTile(x, MAP_HEIGHT - 1, TileType.TREE);
+      }
+      for (let y = 0; y < MAP_HEIGHT; y++) {
+        setTile(0, y, TileType.TREE);
+        setTile(MAP_WIDTH - 1, y, TileType.TREE);
+      }
+
+      const extraTrees = [
+        [7, 3], [8, 4], [6, 11], [4, 10], [16, 6], [18, 8]
+      ];
+      for (const [tx, ty] of extraTrees) {
+        setTile(tx, ty, TileType.TREE);
+      }
+
+      player.x = 10;
+      player.y = 9;
+    }
+
+    function resetPlayerState() {
+      player.x = 10;
+      player.y = 9;
+      player.dirX = 0;
+      player.dirY = -1;
+      player.maxEnergy = 100;
+      player.energy = 100;
+      player.mana = 0;
+      player.seeds = 3;
+      player.day = 1;
+      player.timeTicks = 36;
+      crops = [];
+    }
+
+    function handleQuestsOnTalkToElowen() {
+      const qMeet = getQuest("meet_elowen");
+      const qHarvest = getQuest("first_harvest");
+
+      if (qMeet && qMeet.status === "active") {
+        qMeet.status = "completed";
+        addLog("Quest Completed: 'Meet Archmage Elowen'.");
+        if (qHarvest && qHarvest.status === "locked") {
+          qHarvest.status = "active";
+          addLog("New Quest: 'First Mana Harvest' started!");
+        }
+        updateQuestUI();
+      } else if (qHarvest && qHarvest.status === "active") {
+        const needed = qHarvest.requiredMana || 3;
+        if (player.mana >= needed) {
+          player.mana -= needed;
+          if (qHarvest.reward && qHarvest.reward.seeds) {
+            player.seeds += qHarvest.reward.seeds;
+          }
+          qHarvest.status = "completed";
+          addLog("You deliver the mana crystals to Elowen.");
+          addLog("Quest Completed: 'First Mana Harvest'!");
+          updateQuestUI();
+        } else {
+          addLog("Elowen: 'Gather a few more crystals, apprentice. The field awaits.'");
+        }
+      }
+    }
+
+    function interact() {
+      const npc = npcs.find(n => Math.abs(n.x - player.x) + Math.abs(n.y - player.y) === 1);
+      if (npc) {
+        const baseLine = npc.lines[npc.dialogueIndex];
+        npc.dialogueIndex = (npc.dialogueIndex + 1) % npc.lines.length;
+        addLog(npc.name + ": " + baseLine);
+        handleQuestsOnTalkToElowen();
+        advanceTime(1);
+        return;
+      }
+
+      const tile = getTile(player.x, player.y);
+      if (tile === TileType.FIELD) {
+        const crop = getCropAt(player.x, player.y);
+        if (!crop) {
+          if (player.seeds > 0) {
+            crops.push({ x: player.x, y: player.y, stage: 0 });
+            player.seeds--;
+            addLog("You plant a mana sprout.");
+            player.energy = Math.max(0, player.energy - 2);
+            advanceTime(1);
+          } else {
+            addLog("You have no seeds to plant.");
+          }
+        } else if (crop.stage >= 3) {
+          removeCropAt(player.x, player.y);
+          player.mana += 3;
+          player.seeds += 1;
+          addLog("You harvest shimmering mana crystals!");
+          player.energy = Math.max(0, player.energy - 3);
+          advanceTime(1);
+        } else {
+          addLog("The mana sprout is still growing...");
+        }
+        return;
+      }
+
+      if (tile === TileType.TOWER) {
+        addLog("You feel a warm resonance within the tower stones.");
+        return;
+      }
+
+      addLog("You sense faint magical echoes, but nothing happens.");
+    }
+
+    function nextDay(forcedFromExhaustion = false) {
+      player.day += 1;
+      player.timeTicks = 36;
+      player.energy = player.maxEnergy;
+
+      for (const crop of crops) {
+        if (crop.stage < 3) {
+          crop.stage++;
+        }
+      }
+
+      if (forcedFromExhaustion) {
+        if (player.mana > 0) {
+          player.mana = Math.max(0, player.mana - 1);
+        }
+        addLog("You awaken late with a dull ache. You should rest earlier.");
+      } else {
+        addLog("You rest in your tower and greet a new day.");
+      }
+    }
+
+    function drawTile(x, y, type) {
+      const color = TILE_COLORS[type] || "#000000";
+      const px = x * TILE_SIZE;
+      const py = y * TILE_SIZE;
+
+      ctx.fillStyle = color;
+      ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+
+      if (type === TileType.FIELD) {
+        ctx.strokeStyle = "#c89b3c";
+        ctx.strokeRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      }
+
+      if (type === TileType.PATH) {
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.fillRect(px + 4, py + 4, 2, 2);
+        ctx.fillRect(px + TILE_SIZE - 6, py + TILE_SIZE - 6, 2, 2);
+      }
+    }
+
+    function drawCrops() {
+      for (const crop of crops) {
+        const px = crop.x * TILE_SIZE;
+        const py = crop.y * TILE_SIZE;
+
+        const stagesColors = ["#3a9f6b", "#55c58b", "#8af2c1", "#b9f7ff"];
+        const c = stagesColors[crop.stage] || "#ffffff";
+        ctx.fillStyle = c;
+
+        ctx.beginPath();
+        ctx.moveTo(px + TILE_SIZE / 2, py + 4);
+        ctx.lineTo(px + TILE_SIZE - 6, py + TILE_SIZE / 2);
+        ctx.lineTo(px + TILE_SIZE / 2, py + TILE_SIZE - 4);
+        ctx.lineTo(px + 6, py + TILE_SIZE / 2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.stroke();
+      }
+    }
+
+    function drawNPCs() {
+      for (const npc of npcs) {
+        const px = npc.x * TILE_SIZE;
+        const py = npc.y * TILE_SIZE;
+
+        ctx.fillStyle = "#f9e5a9";
+        ctx.beginPath();
+        ctx.arc(px + TILE_SIZE / 2, py + TILE_SIZE / 2, TILE_SIZE / 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#6f4fd6";
+        ctx.fillRect(px + TILE_SIZE / 4, py + TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2);
+
+        ctx.fillStyle = "#3b2a7f";
+        ctx.beginPath();
+        ctx.moveTo(px + TILE_SIZE / 2, py + 4);
+        ctx.lineTo(px + 4, py + TILE_SIZE / 2);
+        ctx.lineTo(px + TILE_SIZE - 4, py + TILE_SIZE / 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function drawPlayer() {
+      const px = player.x * TILE_SIZE;
+      const py = player.y * TILE_SIZE;
+
+      ctx.fillStyle = "#d766ff";
+      ctx.fillRect(px + TILE_SIZE / 4, py + TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE / 2);
+
+      ctx.fillStyle = "#f7e2c4";
+      ctx.beginPath();
+      ctx.arc(px + TILE_SIZE / 2, py + TILE_SIZE / 2.2, TILE_SIZE / 3.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#39246b";
+      ctx.beginPath();
+      ctx.moveTo(px + TILE_SIZE / 2, py + 4);
+      ctx.lineTo(px + 8, py + TILE_SIZE / 2.4);
+      ctx.lineTo(px + TILE_SIZE - 8, py + TILE_SIZE / 2.4);
+      ctx.closePath();
+      ctx.fill();
+
+      const fx = player.dirX * 6;
+      const fy = player.dirY * 6;
+      ctx.fillStyle = "rgba(191, 243, 255, 0.5)";
+      ctx.beginPath();
+      ctx.arc(px + TILE_SIZE / 2 + fx, py + TILE_SIZE / 2 + fy, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < MAP_HEIGHT; y++) {
+        for (let x = 0; x < MAP_WIDTH; x++) {
+          drawTile(x, y, getTile(x, y));
+        }
+      }
+
+      drawCrops();
+      drawNPCs();
+      drawPlayer();
+    }
+
+    function gameLoop() {
+      draw();
+      updateStatsPanel();
+      updateLocationPanel();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function handleMove(dx, dy) {
+      if (dx === 0 && dy === 0) return;
+      const nx = player.x + dx;
+      const ny = player.y + dy;
+      player.dirX = dx;
+      player.dirY = dy;
+
+      if (canMoveTo(nx, ny)) {
+        player.x = nx;
+        player.y = ny;
+        if (player.energy > 0) {
+          player.energy = Math.max(0, player.energy - 1);
+        }
+        advanceTime(1);
+      }
+    }
+
+    function toggleCharacterMenu(forceOpen) {
+      if (forceOpen === true || (!characterMenuOpen && !inMainMenu)) {
+        characterMenuOpen = true;
+        characterMenuEl.classList.remove("hidden");
+        updateCharacterMenu();
+      } else if (characterMenuOpen) {
+        characterMenuOpen = false;
+        characterMenuEl.classList.add("hidden");
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const keyRaw = e.key;
+      const key = keyRaw.toLowerCase();
+
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(keyRaw.toLowerCase())) {
+        e.preventDefault();
+      }
+
+      keysDown[key] = true;
+
+      if (key === "c") {
+        if (!inMainMenu) toggleCharacterMenu();
+        return;
+      }
+
+      if (key === "escape" && characterMenuOpen) {
+        toggleCharacterMenu(false);
+        return;
+      }
+
+      if (inMainMenu || characterMenuOpen) return;
+
+      if (key === "w" || key === "arrowup") {
+        handleMove(0, -1);
+      } else if (key === "s" || key === "arrowdown") {
+        handleMove(0, 1);
+      } else if (key === "a" || key === "arrowleft") {
+        handleMove(-1, 0);
+      } else if (key === "d" || key === "arrowright") {
+        handleMove(1, 0);
+      } else if (key === "e" || key === " ") {
+        interact();
+      }
+    });
+
+    document.addEventListener("keyup", (e) => {
+      keysDown[e.key.toLowerCase()] = false;
+    });
+
+    sleepBtn.addEventListener("click", () => {
+      if (inMainMenu || characterMenuOpen) return;
+      const tile = getTile(player.x, player.y);
+      if (tile === TileType.TOWER) {
+        nextDay(false);
+      } else {
+        addLog("You should sleep in your tower, not on the ground.");
+      }
+    });
+
+    charBtn.addEventListener("click", () => {
+      if (!inMainMenu) toggleCharacterMenu(true);
+    });
+
+    function hasSaveGame() {
+      if (!saveSupported) return false;
+      try {
+        return !!localStorage.getItem(SAVE_KEY);
+      } catch (e) {
+        console.warn("Error reading save:", e);
+        return false;
+      }
+    }
+
+    function saveGame() {
+      if (!saveSupported) {
+        addLog("Saving is disabled in this environment.");
+        return;
+      }
+      try {
+        const data = {
+          player: {
+            x: player.x,
+            y: player.y,
+            dirX: player.dirX,
+            dirY: player.dirY,
+            maxEnergy: player.maxEnergy,
+            energy: player.energy,
+            mana: player.mana,
+            seeds: player.seeds,
+            day: player.day,
+            timeTicks: player.timeTicks
+          },
+          crops: crops,
+          quests: quests
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        addLog("Game saved.");
+      } catch (err) {
+        console.error(err);
+        addLog("Saving failed. (Check browser permissions.)");
+      }
+      updateMainMenuButtons();
+    }
+
+    function loadGame() {
+      if (!saveSupported) return false;
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data.player) return false;
+
+        generateWorld();
+
+        const p = data.player;
+        player.x = p.x;
+        player.y = p.y;
+        player.dirX = p.dirX;
+        player.dirY = p.dirY;
+        player.maxEnergy = p.maxEnergy;
+        player.energy = p.energy;
+        player.mana = p.mana;
+        player.seeds = p.seeds;
+        player.day = p.day;
+        player.timeTicks = p.timeTicks;
+
+        crops = Array.isArray(data.crops) ? data.crops : [];
+        quests = Array.isArray(data.quests) && data.quests.length
+          ? data.quests
+          : JSON.parse(JSON.stringify(baseQuests));
+
+        addLog("Loaded your previous journey in Mage Valley.");
+        updateQuestUI();
+        return true;
+      } catch (err) {
+        console.error(err);
+        addLog("Failed to load save data.");
+        return false;
+      }
+    }
+
+    function updateMainMenuButtons() {
+      if (saveSupported && hasSaveGame()) {
+        btnContinue.disabled = false;
+        btnContinue.textContent = "Continue";
+      } else if (!saveSupported) {
+        btnContinue.disabled = true;
+        btnContinue.textContent = "Continue (saves disabled)";
+      } else {
+        btnContinue.disabled = true;
+        btnContinue.textContent = "Continue (no save)";
+      }
+    }
+
+    function showMainMenu() {
+      inMainMenu = true;
+      mainMenuEl.classList.remove("hidden");
+      updateMainMenuButtons();
+    }
+
+    function hideMainMenu() {
+      inMainMenu = false;
+      mainMenuEl.classList.add("hidden");
+    }
+
+    btnNewGame.addEventListener("click", () => {
+      map = [];
+      crops = [];
+      generateWorld();
+      resetPlayerState();
+      cloneQuestsFromBase();
+      logEl.innerHTML = "";
+      addLog("You arrive in Mage Valley, a quiet town of spellcasters.");
+      addLog("Seek guidance from Archmage Elowen and tend the mana field.");
+      updateQuestUI();
+      hideMainMenu();
+    });
+
+    btnContinue.addEventListener("click", () => {
+      if (!saveSupported || !hasSaveGame()) return;
+      logEl.innerHTML = "";
+      if (loadGame()) hideMainMenu();
+    });
+
+    btnSaveGame.addEventListener("click", () => {
+      saveGame();
+      updateCharacterMenu();
+    });
+
+    btnSaveExit.addEventListener("click", () => {
+      saveGame();
+      toggleCharacterMenu(false);
+      showMainMenu();
+    });
+
+    initStorage();
+    generateWorld();
+    resetPlayerState();
+    cloneQuestsFromBase();
+    updateStatsPanel();
+    updateLocationPanel();
+    updateMainMenuButtons();
+    addLog("Welcome to Mage Valley. Start a new game or continue from the main menu.");
+    showMainMenu();
+    gameLoop();
+  </script>
+</body>
+</html>
