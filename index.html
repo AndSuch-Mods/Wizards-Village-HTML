@@ -4,13 +4,16 @@
   <meta charset="UTF-8" />
   <title>Mage Valley – Prototype Menu Flow</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap');
+
     :root {
       color-scheme: dark;
-      --bg: radial-gradient(circle at top, #1f2445, #0b0e1d 60%);
-      --panel: linear-gradient(145deg, #1c2038, #121525);
-      --accent: #9cd164;
-      --muted: #b6bedf;
-      --outline: rgba(255, 255, 255, 0.08);
+      --bg: radial-gradient(circle at 20% 15%, #23352f 0%, #0c1414 55%, #06090f 100%);
+      --panel: linear-gradient(135deg, #1a2222, #0f1317);
+      --accent: #cda555;
+      --muted: #d1c9b6;
+      --outline: rgba(255, 228, 180, 0.12);
+      --pixel-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Crect width='1' height='1' x='1' y='0' fill='%234a5a45'/%3E%3Crect width='1' height='1' x='4' y='1' fill='%234a5a45'/%3E%3Crect width='1' height='1' x='2' y='3' fill='%234a5a45'/%3E%3Crect width='1' height='1' x='5' y='4' fill='%234a5a45'/%3E%3Crect width='1' height='1' x='0' y='5' fill='%233f4d3e'/%3E%3C/svg%3E");
     }
 
     * {
@@ -26,18 +29,35 @@
       background: var(--bg);
       color: #e7ecff;
       overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: var(--pixel-noise);
+      background-size: 6px 6px;
+      opacity: 0.35;
+      mix-blend-mode: overlay;
+      image-rendering: pixelated;
+      z-index: 0;
     }
 
     main {
       width: 100vw;
       height: 100vh;
-      background: rgba(5, 7, 20, 0.85);
+      background: linear-gradient(145deg, rgba(12, 20, 18, 0.9), rgba(7, 12, 14, 0.92));
       border: 1px solid var(--outline);
       box-sizing: border-box;
       padding: 20px;
       display: grid;
       grid-template-rows: auto 1fr;
       gap: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.4), 0 20px 30px rgba(0, 0, 0, 0.45);
     }
 
     header {
@@ -48,11 +68,15 @@
       border-bottom: 1px solid var(--outline);
       padding-bottom: 10px;
       margin-bottom: 6px;
+      position: relative;
     }
 
     h1 {
       letter-spacing: 0.12em;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
+      font-family: "Press Start 2P", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f5d78a;
+      text-shadow: 0 2px 0 #1b1206, 0 0 12px rgba(255, 207, 126, 0.35);
     }
 
     #screenWrapper {
@@ -65,22 +89,31 @@
 
     .panel {
       background: var(--panel);
-      border-radius: 14px;
+      border-radius: 8px;
       border: 1px solid var(--outline);
       padding: 16px 18px;
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+      box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.35),
+        0 16px 0 rgba(0, 0, 0, 0.45),
+        0 14px 32px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
       gap: 10px;
       min-height: 0;
       height: 100%;
+      background-image:
+        linear-gradient(180deg, rgba(255, 216, 146, 0.06), rgba(0, 0, 0, 0)),
+        var(--pixel-noise);
+      background-size: cover, 6px 6px;
+      image-rendering: pixelated;
     }
 
     .panel h2 {
-      font-size: 1rem;
+      font-size: 0.95rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #d6ddff;
+      color: #f0dfad;
+      font-family: "Press Start 2P", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     button, input, select {
@@ -88,36 +121,40 @@
     }
 
     .btn {
-      background: linear-gradient(135deg, #7ac45a, #96d768);
-      color: #0e1a0e;
-      border: none;
-      border-radius: 999px;
+      background: linear-gradient(180deg, #4d7c43, #2f5136);
+      color: #f2e8d0;
+      border: 1px solid #0f0f0f;
+      border-radius: 6px;
       padding: 10px 12px;
       font-weight: 700;
       letter-spacing: 0.04em;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+      box-shadow: 0 6px 0 #0a0c0c, 0 10px 18px rgba(0, 0, 0, 0.4);
+      text-transform: uppercase;
+      image-rendering: pixelated;
     }
 
     .btn.secondary {
-      background: linear-gradient(135deg, #5f7bff, #7f9cff);
-      color: #0c1027;
+      background: linear-gradient(180deg, #3e5875, #27384f);
+      color: #f3e5c9;
+      box-shadow: 0 6px 0 #0c1118, 0 10px 18px rgba(0, 0, 0, 0.4);
     }
 
     .btn.ghost {
-      background: rgba(255, 255, 255, 0.06);
-      color: #e7ecff;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+      color: #f0dfad;
       border: 1px solid var(--outline);
-      box-shadow: none;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+      text-transform: none;
     }
 
     .btn:hover {
       transform: translateY(-1px);
-      filter: brightness(1.05);
+      filter: brightness(1.06) saturate(1.05);
     }
 
-    .btn:active { transform: translateY(0); }
+    .btn:active { transform: translateY(0); box-shadow: 0 3px 0 #0a0c0c, 0 6px 12px rgba(0,0,0,0.4); }
 
     .screen {
       display: none;
@@ -200,24 +237,13 @@
 
     #mapView {
       flex: 1;
-      background: repeating-linear-gradient(
-          0deg,
-          rgba(255, 255, 255, 0.04),
-          rgba(255, 255, 255, 0.04) 14px,
-          rgba(255, 255, 255, 0.02) 14px,
-          rgba(255, 255, 255, 0.02) 28px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0.03),
-          rgba(255, 255, 255, 0.03) 14px,
-          rgba(255, 255, 255, 0.01) 14px,
-          rgba(255, 255, 255, 0.01) 28px
-        ),
-        radial-gradient(circle at 30% 40%, rgba(156, 209, 100, 0.16), transparent 40%),
-        radial-gradient(circle at 70% 70%, rgba(127, 169, 255, 0.14), transparent 50%),
-        #0f1226;
-      border-radius: 10px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(53, 87, 65, 0.4), transparent 40%),
+        radial-gradient(circle at 75% 70%, rgba(35, 54, 42, 0.35), transparent 45%),
+        repeating-linear-gradient(0deg, rgba(24, 44, 32, 0.7) 0 8px, rgba(17, 31, 25, 0.7) 8px 16px),
+        repeating-linear-gradient(90deg, rgba(24, 44, 32, 0.7) 0 8px, rgba(17, 31, 25, 0.7) 8px 16px),
+        #0a0f10;
+      border-radius: 8px;
       border: 1px solid var(--outline);
       position: relative;
       overflow: hidden;
@@ -226,6 +252,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      image-rendering: pixelated;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35);
     }
 
     #mapView .mapOverlay {
@@ -234,43 +262,51 @@
       display: grid;
       grid-auto-rows: 1fr;
       grid-auto-columns: 1fr;
-      gap: 4px;
-      padding: 14px;
+      gap: 2px;
+      padding: 12px;
     }
 
     #mapView .tile {
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
+      border: 1px solid rgba(9, 12, 10, 0.9);
+      border-radius: 2px;
       background: rgba(255,255,255,0.02);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        inset 0 -2px 0 rgba(0,0,0,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
       letter-spacing: 0.04em;
-      color: #d6ddff;
+      color: #e9dfc6;
+      background-size: 8px 8px;
+      background-image: linear-gradient(135deg, rgba(255,255,255,0.04) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.04) 75%, transparent 75%, transparent);
+      image-rendering: pixelated;
     }
 
-    #mapView .tile[data-type="forest"] { background: radial-gradient(circle at 40% 40%, rgba(36, 69, 54, 0.65), rgba(10, 18, 27, 0.9)); }
-    #mapView .tile[data-type="grass"] { background: radial-gradient(circle at 50% 40%, rgba(79, 120, 64, 0.55), rgba(16, 28, 24, 0.9)); }
-    #mapView .tile[data-type="path"] { background: linear-gradient(135deg, rgba(112, 84, 54, 0.6), rgba(58, 42, 30, 0.8)); }
-    #mapView .tile[data-type="mushroom"] { background: radial-gradient(circle at 50% 40%, rgba(145, 86, 82, 0.7), rgba(34, 20, 31, 0.85)); }
-    #mapView .tile[data-type="stump"] { background: radial-gradient(circle at 40% 40%, rgba(122, 88, 54, 0.68), rgba(38, 26, 18, 0.92)); }
-    #mapView .tile[data-type="bush"] { background: radial-gradient(circle at 40% 40%, rgba(62, 103, 72, 0.7), rgba(18, 34, 28, 0.92)); }
-    #mapView .tile[data-type="tower"] { background: linear-gradient(180deg, rgba(110, 122, 147, 0.7), rgba(28, 34, 48, 0.9)); }
-    #mapView .tile[data-type="door"] { background: linear-gradient(180deg, rgba(180, 148, 96, 0.8), rgba(58, 34, 20, 0.9)); }
-    #mapView .tile[data-type="window"] { background: radial-gradient(circle at 40% 40%, rgba(242, 204, 104, 0.9), rgba(72, 55, 30, 0.9)); color: #1b1208; font-weight: 700; }
+    #mapView .tile[data-type="forest"] { background-color: #1e382b; box-shadow: inset 0 0 0 1px #3d5b44, inset 0 -2px 0 rgba(0,0,0,0.5); }
+    #mapView .tile[data-type="grass"] { background-color: #294831; box-shadow: inset 0 0 0 1px #4b6a4b, inset 0 -2px 0 rgba(0,0,0,0.5); }
+    #mapView .tile[data-type="path"] { background-color: #6f5a3e; box-shadow: inset 0 0 0 1px #8c744f, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="mushroom"] { background-color: #7a3f3b; box-shadow: inset 0 0 0 1px #b06560, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="stump"] { background-color: #5c3b1f; box-shadow: inset 0 0 0 1px #9b6b3c, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="bush"] { background-color: #264534; box-shadow: inset 0 0 0 1px #3f6c4c, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="tower"] { background-color: #4c5666; box-shadow: inset 0 0 0 1px #76829b, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="door"] { background-color: #7c5a33; box-shadow: inset 0 0 0 1px #b48c55, inset 0 -2px 0 rgba(0,0,0,0.55); }
+    #mapView .tile[data-type="window"] { background-color: #f2c46a; color: #1b1208; font-weight: 700; box-shadow: inset 0 0 0 1px #f8e8b0, inset 0 -2px 0 rgba(118, 86, 34, 0.8); }
 
     #mapView .mapLabel {
       position: absolute;
       left: 12px;
       bottom: 12px;
-      background: rgba(0,0,0,0.5);
+      background: rgba(5,8,7,0.7);
       padding: 8px 10px;
-      border-radius: 8px;
+      border-radius: 4px;
       border: 1px solid var(--outline);
-      color: #d6ddff;
-      letter-spacing: 0.06em;
+      color: #f0dfad;
+      letter-spacing: 0.08em;
+      font-family: "Press Start 2P", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.72rem;
+      text-transform: uppercase;
     }
 
     .heroMarker {
@@ -282,14 +318,14 @@
     }
 
     #mapHero {
-      --hat: #8aa7ff;
-      --shirt: #82e0b5;
-      --pants: #6d7a9a;
-      --robe: #d3b7ff;
+      --hat: #4f658f;
+      --shirt: #5b816e;
+      --pants: #39485a;
+      --robe: #7c6239;
       position: relative;
-      width: 80px;
-      height: 120px;
-      transform: scale(0.9);
+      width: 82px;
+      height: 122px;
+      transform: scale(0.95);
       transform-origin: bottom;
     }
 
@@ -312,8 +348,9 @@
 
     .resourceCard h5 {
       letter-spacing: 0.06em;
-      color: #d6ddff;
+      color: #f0dfad;
       font-size: 0.95rem;
+      text-transform: uppercase;
     }
 
     .tagRow {
@@ -323,13 +360,14 @@
     }
 
     .tag {
-      background: rgba(156, 209, 100, 0.12);
-      color: #cfe6a6;
+      background: rgba(205, 165, 85, 0.14);
+      color: #f6e2b9;
       border: 1px solid var(--outline);
-      border-radius: 999px;
+      border-radius: 4px;
       padding: 4px 8px;
-      font-size: 0.8rem;
-      letter-spacing: 0.04em;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     .resourceCard ul {
@@ -339,15 +377,16 @@
     }
 
     .codeBlock {
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--outline);
-      border-radius: 10px;
+      border-radius: 6px;
       padding: 10px;
       font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      color: #e7ecff;
+      color: #f6eed6;
       font-size: 0.85rem;
       line-height: 1.35;
       overflow-x: auto;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.4);
     }
 
     .legendList {
@@ -359,35 +398,35 @@
 
     .avatar .hat {
       position: absolute;
-      top: 0;
-      left: 12px;
-      width: 56px;
-      height: 22px;
-      background: var(--hat);
-      border-radius: 12px 12px 8px 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      top: 2px;
+      left: 10px;
+      width: 60px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--hat), #2a2d32);
+      border-radius: 2px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.45), 0 0 0 2px rgba(0,0,0,0.6);
     }
 
     .avatar .head {
       position: absolute;
       top: 20px;
-      left: 20px;
-      width: 40px;
-      height: 34px;
-      background: #f0cfa2;
-      border-radius: 14px;
-      box-shadow: inset 0 -4px 0 rgba(0,0,0,0.08);
+      left: 22px;
+      width: 36px;
+      height: 32px;
+      background: linear-gradient(180deg, #d8b78a 60%, #b6895b);
+      border-radius: 4px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35), 0 0 0 2px rgba(0,0,0,0.45);
     }
 
     .avatar .robe {
       position: absolute;
-      top: 52px;
-      left: 10px;
-      width: 60px;
-      height: 64px;
-      background: var(--robe);
-      border-radius: 16px 16px 12px 12px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+      top: 50px;
+      left: 8px;
+      width: 64px;
+      height: 68px;
+      background: linear-gradient(180deg, var(--robe), #1e2028);
+      border-radius: 3px;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(0,0,0,0.6);
     }
 
     .avatar .shirt {
@@ -396,9 +435,9 @@
       left: 16px;
       width: 48px;
       height: 36px;
-      background: var(--shirt);
-      border-radius: 12px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+      background: linear-gradient(180deg, var(--shirt), #1f2a33);
+      border-radius: 2px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3), 0 0 0 2px rgba(0,0,0,0.4);
     }
 
     .avatar .pants {
@@ -406,52 +445,62 @@
       bottom: 6px;
       left: 18px;
       width: 44px;
-      height: 24px;
-      background: var(--pants);
-      border-radius: 8px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+      height: 26px;
+      background: linear-gradient(180deg, var(--pants), #0f1318);
+      border-radius: 2px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.32), 0 0 0 2px rgba(0,0,0,0.55);
     }
 
     .avatar .staff {
       position: absolute;
-      right: -4px;
+      right: -6px;
       top: 18px;
-      width: 6px;
-      height: 94px;
-      background: linear-gradient(180deg, #d1ba87, #b08a42);
-      border-radius: 4px;
-      box-shadow: 0 6px 8px rgba(0,0,0,0.25);
+      width: 8px;
+      height: 96px;
+      background: linear-gradient(180deg, #caa366, #8d6a33);
+      border-radius: 2px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.45), 0 0 0 2px rgba(0,0,0,0.55);
     }
 
     .avatar .orb {
       position: absolute;
-      right: -12px;
+      right: -14px;
       top: 6px;
       width: 18px;
       height: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #fff, #7cc0ff);
-      box-shadow: 0 0 12px rgba(124,192,255,0.8);
+      border-radius: 4px;
+      background: radial-gradient(circle at 30% 30%, #fff8cf, #f2c46a);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.4), 0 0 12px rgba(242,196,106,0.8);
     }
 
     #characterPreview {
-      --hat: #8aa7ff;
-      --shirt: #82e0b5;
-      --pants: #6d7a9a;
-      --robe: #d3b7ff;
+      --hat: #6480b8;
+      --shirt: #6ba089;
+      --pants: #435266;
+      --robe: #9c7e4a;
       position: relative;
       width: 120px;
       height: 160px;
-      background: rgba(255,255,255,0.03);
+      background:
+        radial-gradient(circle at 40% 20%, rgba(69, 114, 83, 0.4), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(34, 53, 45, 0.35), transparent 60%),
+        #0f1919;
       border: 1px solid var(--outline);
-      border-radius: 12px;
+      border-radius: 8px;
       display: grid;
       place-items: center;
       padding: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.45);
+      image-rendering: pixelated;
     }
 
-    .avatar { position: relative; width: 80px; height: 120px; }
+    .avatar {
+      position: relative;
+      width: 84px;
+      height: 122px;
+      filter: drop-shadow(0 6px 0 rgba(0,0,0,0.45));
+      image-rendering: pixelated;
+    }
 
     .pieceLabels {
       display: grid;
