@@ -752,9 +752,9 @@
           setPreview(`Zone select — ${name} can begin in the Forest.`);
           break;
         case 'game':
-          const zone = currentCharacter?.zone || 'FOREST';
+          const zone = currentCharacter?.zone || 'Forest';
           document.getElementById('mapTitle').textContent = zone.toUpperCase();
-          document.getElementById('zoneBadge').textContent = zone === 'Forest' ? 'Safe zone' : 'Zone loaded';
+          document.getElementById('zoneBadge').textContent = zone.toLowerCase() === 'forest' ? 'Safe zone' : 'Zone loaded';
           setPreview('Placeholder game area — map grid and character UI ready.');
           activateTab('inventory');
           hydrateGameUI();
