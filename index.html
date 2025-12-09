@@ -232,17 +232,34 @@
       position: absolute;
       inset: 0;
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-template-rows: repeat(6, 1fr);
+      grid-auto-rows: 1fr;
+      grid-auto-columns: 1fr;
       gap: 4px;
       padding: 14px;
     }
 
     #mapView .tile {
-      border: 1px dashed rgba(255,255,255,0.07);
-      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
       background: rgba(255,255,255,0.02);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      color: #d6ddff;
     }
+
+    #mapView .tile[data-type="forest"] { background: radial-gradient(circle at 40% 40%, rgba(36, 69, 54, 0.65), rgba(10, 18, 27, 0.9)); }
+    #mapView .tile[data-type="grass"] { background: radial-gradient(circle at 50% 40%, rgba(79, 120, 64, 0.55), rgba(16, 28, 24, 0.9)); }
+    #mapView .tile[data-type="path"] { background: linear-gradient(135deg, rgba(112, 84, 54, 0.6), rgba(58, 42, 30, 0.8)); }
+    #mapView .tile[data-type="mushroom"] { background: radial-gradient(circle at 50% 40%, rgba(145, 86, 82, 0.7), rgba(34, 20, 31, 0.85)); }
+    #mapView .tile[data-type="stump"] { background: radial-gradient(circle at 40% 40%, rgba(122, 88, 54, 0.68), rgba(38, 26, 18, 0.92)); }
+    #mapView .tile[data-type="bush"] { background: radial-gradient(circle at 40% 40%, rgba(62, 103, 72, 0.7), rgba(18, 34, 28, 0.92)); }
+    #mapView .tile[data-type="tower"] { background: linear-gradient(180deg, rgba(110, 122, 147, 0.7), rgba(28, 34, 48, 0.9)); }
+    #mapView .tile[data-type="door"] { background: linear-gradient(180deg, rgba(180, 148, 96, 0.8), rgba(58, 34, 20, 0.9)); }
+    #mapView .tile[data-type="window"] { background: radial-gradient(circle at 40% 40%, rgba(242, 204, 104, 0.9), rgba(72, 55, 30, 0.9)); color: #1b1208; font-weight: 700; }
 
     #mapView .mapLabel {
       position: absolute;
@@ -591,6 +608,13 @@
               <option value="Arcane">Arcane</option>
             </select>
           </div>
+          <div class="field">
+            <label for="charArchetype">Archetype</label>
+            <select id="charArchetype">
+              <option value="femaleApprentice">Female apprentice (warm moss)</option>
+              <option value="maleApprentice">Male apprentice (dusk ash)</option>
+            </select>
+          </div>
           <button class="btn" id="createCharacter">Create Character</button>
           <button class="btn ghost" id="characterBack">Back</button>
         </div>
@@ -627,6 +651,7 @@
                 </div>
                 <div class="mapLabel">Emerald Approach — prototype map</div>
               </div>
+              <div class="legendList" id="mapLegend"></div>
             </div>
 
             <div class="characterMenu" id="characterMenu" aria-label="Character menu" aria-hidden="true">
@@ -837,6 +862,7 @@ maps/
 
               <div id="people" class="tabContent" role="tabpanel">
                 <h4>People nearby</h4>
+                <div id="peopleList" class="resourceGrid"></div>
               </div>
 
               <div id="settings" class="tabContent" role="tabpanel">
@@ -882,10 +908,14 @@ maps/
     const backButton = document.getElementById('backToStart');
     const mapOverlay = document.querySelector('#mapView .mapOverlay');
     const mapHero = document.getElementById('mapHero');
+    const mapLegend = document.getElementById('mapLegend');
+    const mapLabel = document.querySelector('.mapLabel');
     const inventoryList = document.getElementById('inventoryList');
     const characterMenu = document.getElementById('characterMenu');
     const openCharacterMenu = document.getElementById('openCharacterMenu');
     const closeCharacterMenu = document.getElementById('closeCharacterMenu');
+    const peopleList = document.getElementById('peopleList');
+    const archetypeSelect = document.getElementById('charArchetype');
     const gearSelects = {
       hatStyle: document.getElementById('hatStyle'),
       hatColor: document.getElementById('hatColor'),
@@ -899,6 +929,60 @@ maps/
       pants: document.getElementById('pantsLabel'),
       robe: document.getElementById('robeLabel'),
     };
+
+    const appearancePresets = {
+      femaleApprentice: {
+        hatStyle: 'Wide Brim',
+        hatColor: 'Dusk',
+        shirtColor: 'Meadow',
+        pantsColor: 'Midnight',
+        robeColor: 'Twilight',
+      },
+      maleApprentice: {
+        hatStyle: 'Traveler Cap',
+        hatColor: 'Charcoal',
+        shirtColor: 'Moss',
+        pantsColor: 'Charcoal',
+        robeColor: 'Dusk',
+      },
+    };
+
+    const archetypeLabels = {
+      femaleApprentice: 'Apprentice (F)',
+      maleApprentice: 'Apprentice (M)',
+    };
+
+    const tileLegend = {
+      T: { label: 'Tree wall / forest edge', type: 'forest' },
+      G: { label: 'Grass clearing', type: 'grass' },
+      P: { label: 'Packed dirt path', type: 'path' },
+      M: { label: 'Mushroom cluster', type: 'mushroom' },
+      r: { label: 'Round stump', type: 'stump' },
+      b: { label: 'Bush / fern cluster', type: 'bush' },
+      W: { label: 'Glowing tower window', type: 'window' },
+      D: { label: 'Tower door + stone steps', type: 'door' },
+    };
+
+    const towerClearingLayout = [
+      'TTTTTTTTTTTTT',
+      'TGGGGGGGGGGGT',
+      'TGbbbGPbbbGGT',
+      'TGbGPPGGPbGGT',
+      'TGGPPMTPPGGGT',
+      'TGPPrDDDPPGGT',
+      'TGGPPMWPPGGGT',
+      'TGbGPPGGPbGGT',
+      'TGbbbGPbbbGGT',
+      'TGGGGGGGGGGGT',
+      'TTTTTTTTTTTTT',
+    ];
+
+    const npcRoster = [
+      { role: 'Blacksmith', look: 'Apron, hammer, rolled sleeves', vibe: 'Sturdy helper who forges starter gear.' },
+      { role: 'Herbalist', look: 'Satchel, herb wreath, soft shawl', vibe: 'Gathers moonmint and brews tonics.' },
+      { role: 'Town Guard', look: 'Short cloak, spear, light helm', vibe: 'Keeps watch on the path to the tower.' },
+      { role: 'Child', look: 'Oversized tunic, sling bag', vibe: 'Offers rumors and collects shinies.' },
+    ];
 
     const saveKey = 'mageValleyPrototypeSaves';
     let currentCharacter = null;
@@ -921,21 +1005,26 @@ maps/
       { name: 'Birchwood Staff', slot: 'Hand', notes: 'Channeling focus with a skyglass orb.' },
     ];
 
-    function getDefaultAppearance() {
-      return {
-        hatStyle: hatStyles[0],
-        hatColor: 'Dusk',
-        shirtColor: 'Meadow',
-        pantsColor: 'Midnight',
-        robeColor: 'Twilight',
-      };
+    function getDefaultAppearance(archetype = 'femaleApprentice') {
+      return { ...appearancePresets[archetype] };
     }
 
     function ensureAppearance(base) {
-      return { ...getDefaultAppearance(), ...(base?.appearance || {}) };
+      const preset = getDefaultAppearance(base?.archetype || 'femaleApprentice');
+      return { ...preset, ...(base?.appearance || {}) };
     }
 
-    function setPreview() {}
+    const defaultMapLabel = 'Emerald Approach — mage tower start';
+
+    if (mapLabel) mapLabel.textContent = defaultMapLabel;
+
+    function setPreview(message) {
+      if (!mapLabel || !message) return;
+      mapLabel.textContent = message;
+      setTimeout(() => {
+        mapLabel.textContent = defaultMapLabel;
+      }, 1800);
+    }
 
     function hideAllScreens() {
       Object.values(screens).forEach((el) => el.classList.remove('active'));
@@ -974,7 +1063,7 @@ maps/
         const parsed = raw ? JSON.parse(raw) : [];
         const save = Array.isArray(parsed) ? parsed[0] : parsed;
         if (!save) return [];
-        return [{ ...save, appearance: ensureAppearance(save) }];
+        return [{ ...save, archetype: save.archetype || 'femaleApprentice', appearance: ensureAppearance(save) }];
       } catch (err) {
         console.warn('Unable to load saves', err);
         return [];
@@ -1038,18 +1127,40 @@ maps/
     }
 
     function addSave(save) {
-      const completeSave = { ...save, appearance: ensureAppearance(save) };
+      const completeSave = { ...save, archetype: save.archetype || 'femaleApprentice', appearance: ensureAppearance(save) };
       persistSaves([completeSave]);
     }
 
-    function populateMapGrid() {
-      if (!mapOverlay) return;
+    function populateMapGrid(layout = towerClearingLayout) {
+      if (!mapOverlay || !layout.length) return;
+      const rows = layout.length;
+      const cols = layout[0].length;
       mapOverlay.innerHTML = '';
-      for (let i = 0; i < 72; i += 1) {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
-        mapOverlay.appendChild(tile);
-      }
+      mapOverlay.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      mapOverlay.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+      layout.forEach((row, y) => {
+        [...row].forEach((symbol, x) => {
+          const def = tileLegend[symbol] || tileLegend.G;
+          const tile = document.createElement('div');
+          tile.className = 'tile';
+          tile.dataset.symbol = symbol;
+          tile.dataset.type = def.type;
+          tile.title = `${def.label} (${x}, ${y})`;
+          tile.textContent = symbol;
+          mapOverlay.appendChild(tile);
+        });
+      });
+    }
+
+    function populateMapLegend() {
+      if (!mapLegend) return;
+      mapLegend.innerHTML = '';
+      Object.entries(tileLegend).forEach(([symbol, def]) => {
+        const span = document.createElement('span');
+        span.innerHTML = `<strong>${symbol}</strong> – ${def.label}`;
+        mapLegend.appendChild(span);
+      });
     }
 
     function populateInventoryList() {
@@ -1059,6 +1170,17 @@ maps/
         card.className = 'inventoryCard';
         card.innerHTML = `<strong>${item.name}</strong><small>${item.slot}</small><p style="color: var(--muted)">${item.notes}</p>`;
         inventoryList.appendChild(card);
+      });
+    }
+
+    function populatePeople() {
+      if (!peopleList) return;
+      peopleList.innerHTML = '';
+      npcRoster.forEach((npc) => {
+        const card = document.createElement('div');
+        card.className = 'resourceCard';
+        card.innerHTML = `<h5>${npc.role}</h5><p style="color: var(--muted);">${npc.look}</p><p style="color: var(--muted);">${npc.vibe}</p>`;
+        peopleList.appendChild(card);
       });
     }
 
@@ -1107,7 +1229,9 @@ maps/
       if (!currentCharacter) return;
       currentCharacter.appearance = ensureAppearance(currentCharacter);
       document.getElementById('heroName').textContent = currentCharacter.name;
-      document.getElementById('heroFocus').textContent = `Focus: ${currentCharacter.focus} • Zone: ${currentCharacter.zone}`;
+      const archetype = currentCharacter.archetype || 'femaleApprentice';
+      const archetypeLabel = archetypeLabels[archetype] || 'Apprentice';
+      document.getElementById('heroFocus').textContent = `${archetypeLabel} • Focus: ${currentCharacter.focus} • Zone: ${currentCharacter.zone}`;
       syncGearControls(currentCharacter.appearance);
       applyAppearance(currentCharacter.appearance);
     }
@@ -1165,13 +1289,14 @@ maps/
     document.getElementById('createCharacter').addEventListener('click', () => {
       const name = document.getElementById('charName').value.trim() || 'Apprentice';
       const focus = document.getElementById('charFocus').value;
-      currentCharacter = { name, focus, zone: 'Forest', appearance: getDefaultAppearance() };
+      const archetype = archetypeSelect.value || 'femaleApprentice';
+      currentCharacter = { name, focus, archetype, zone: 'Forest', appearance: getDefaultAppearance(archetype) };
       showScreen('zone');
     });
 
     document.getElementById('startForest').addEventListener('click', () => {
       if (!currentCharacter) {
-        currentCharacter = { name: 'Apprentice', focus: 'Elemental', zone: 'Forest', appearance: getDefaultAppearance() };
+        currentCharacter = { name: 'Apprentice', focus: 'Elemental', archetype: 'femaleApprentice', zone: 'Forest', appearance: getDefaultAppearance('femaleApprentice') };
       }
       currentCharacter.zone = 'Forest';
       currentCharacter.appearance = ensureAppearance(currentCharacter);
@@ -1206,8 +1331,10 @@ maps/
 
     // Initialize
     populateMapGrid();
+    populateMapLegend();
     populateGearSelects();
     populateInventoryList();
+    populatePeople();
     showScreen('start');
     toggleCharacterMenu(false);
   </script>
