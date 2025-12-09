@@ -31,15 +31,15 @@
     }
 
     main {
-      width: min(960px, 100%);
+      width: min(1280px, 100%);
       background: rgba(5, 7, 20, 0.8);
       border: 1px solid var(--outline);
       border-radius: 18px;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
       padding: 26px;
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     header {
@@ -63,9 +63,8 @@
     }
 
     #screenWrapper {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 16px;
     }
 
@@ -92,6 +91,8 @@
       color: var(--muted);
       line-height: 1.5;
     }
+
+    .muted { color: var(--muted); }
 
     button, input, select {
       font: inherit;
@@ -180,40 +181,330 @@
     .saveCard strong { color: #e7ecff; }
     .saveCard span { color: var(--muted); font-size: 0.85rem; }
 
-    #preview {
-      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 12px, rgba(255,255,255,0.05) 12px 24px),
-                  radial-gradient(circle at 20% 20%, rgba(156, 209, 100, 0.2), transparent 34%),
-                  radial-gradient(circle at 70% 60%, rgba(127, 169, 255, 0.15), transparent 44%),
-                  #0f1226;
-      border-radius: 14px;
-      border: 1px solid var(--outline);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 320px;
+    .statusLine {
       color: var(--muted);
-      text-align: center;
-      padding: 18px;
+      font-size: 0.92rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: rgba(255, 255, 255, 0.03);
     }
 
-    #gameStage {
+    .gameStage {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--outline);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mapStage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mapHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #mapView {
+      position: relative;
       width: 100%;
-      height: 100%;
-      background: #1a3f1d;
-      border-radius: 12px;
+      aspect-ratio: 16 / 9;
+      min-height: 420px;
+      background:
+        linear-gradient(90deg, rgba(70, 95, 46, 0.08) 0 1px, transparent 1px),
+        linear-gradient(0deg, rgba(70, 95, 46, 0.08) 0 1px, transparent 1px),
+        radial-gradient(circle at 20% 20%, rgba(156, 209, 100, 0.08), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(127, 169, 255, 0.06), transparent 36%),
+        #132112;
+      background-size: 64px 64px, 64px 64px, auto, auto, auto;
+      border-radius: 14px;
+      border: 1px solid var(--outline);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    #mapView .mapOverlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(7, 1fr);
+      gap: 6px;
+      padding: 16px;
+    }
+
+    #mapView .tile {
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    #mapView .mapLabel {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      background: rgba(0,0,0,0.55);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      color: #d6ddff;
+      letter-spacing: 0.06em;
+    }
+
+    .mapHeaderActions {
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: #d7ffd1;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      border: 2px dashed rgba(255,255,255,0.12);
+      gap: 12px;
+    }
+
+    .heroMeta {
+      display: grid;
+      gap: 2px;
+      text-align: right;
+    }
+
+    .heroMeta span { color: var(--muted); }
+
+    .hudHint {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    #heroSprite {
+      --hat: #8aa7ff;
+      --shirt: #82e0b5;
+      --pants: #6d7a9a;
+      --robe: #d3b7ff;
+      position: absolute;
+      bottom: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 160px;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.55));
+    }
+
+    .heroAvatar {
+      position: relative;
+      width: 88px;
+      height: 128px;
+      animation: idle-bob 2.8s ease-in-out infinite;
+    }
+
+    @keyframes idle-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .heroAvatar .hat {
+      position: absolute;
+      top: 0;
+      left: 12px;
+      width: 56px;
+      height: 22px;
+      background: var(--hat);
+      border-radius: 12px 12px 8px 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    }
+
+    .heroAvatar .head {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 34px;
+      background: #f0cfa2;
+      border-radius: 14px;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,0.08);
+    }
+
+    .heroAvatar .robe {
+      position: absolute;
+      top: 52px;
+      left: 10px;
+      width: 60px;
+      height: 64px;
+      background: var(--robe);
+      border-radius: 16px 16px 12px 12px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+    }
+
+    .heroAvatar .shirt {
+      position: absolute;
+      top: 60px;
+      left: 16px;
+      width: 48px;
+      height: 36px;
+      background: var(--shirt);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    .heroAvatar .pants {
+      position: absolute;
+      bottom: 6px;
+      left: 18px;
+      width: 44px;
+      height: 24px;
+      background: var(--pants);
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+    }
+
+    .heroAvatar .staff {
+      position: absolute;
+      right: -4px;
+      top: 18px;
+      width: 6px;
+      height: 94px;
+      background: linear-gradient(180deg, #d1ba87, #b08a42);
+      border-radius: 4px;
+      box-shadow: 0 6px 8px rgba(0,0,0,0.25);
+    }
+
+    .heroAvatar .orb {
+      position: absolute;
+      right: -12px;
+      top: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #7cc0ff);
+      box-shadow: 0 0 12px rgba(124,192,255,0.8);
+    }
+
+    .characterHud {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+      background: rgba(3, 6, 18, 0.72);
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      box-shadow: 0 16px 26px rgba(0,0,0,0.35);
+      padding: 12px;
+    }
+
+    .characterHud.open { display: flex; }
+
+    .hudTabs {
+      display: flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--outline);
+    }
+
+    .hudTabs button {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--outline);
+      border-radius: 8px;
+      color: #e7ecff;
+      padding: 10px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: transform 0.1s ease, border-color 0.1s ease, background 0.2s ease;
+    }
+
+    .hudTabs button.active {
+      border-color: var(--accent);
+      background: rgba(156, 209, 100, 0.16);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      transform: translateY(-1px);
+    }
+
+    .hudPanels {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tabContent {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px dashed var(--outline);
+      background: rgba(255,255,255,0.02);
+      min-height: 140px;
+    }
+
+    .tabContent.active { display: flex; }
+
+    .gearSummary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .inlineFields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .inventoryList {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .inventoryCard {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 4px;
+    }
+
+    .inventoryCard small { color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      background: rgba(156, 209, 100, 0.12);
+      color: #c4f08f;
+      border: 1px solid rgba(156,209,100,0.3);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    .flexBetween { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+    @media (max-width: 1040px) {
+      .mapHeader { flex-direction: column; align-items: flex-start; }
+      .mapHeaderActions { width: 100%; justify-content: space-between; }
+      .heroMeta { text-align: left; }
     }
 
     @media (max-width: 860px) {
-      main { grid-template-columns: 1fr; }
-      #screenWrapper { grid-template-columns: 1fr; }
+      .mapHeaderActions { flex-direction: column; align-items: flex-start; }
+      .mapHeaderActions button { width: 100%; }
+      .characterHud { position: relative; }
     }
   </style>
 </head>
@@ -226,6 +517,8 @@
       </div>
       <button class="btn ghost" id="backToStart" aria-label="Back to start menu">Back</button>
     </header>
+
+    <div id="statusText" class="statusLine" aria-live="polite">Select an option to see the current screen.</div>
 
     <section id="screenWrapper">
       <div class="panel">
@@ -271,19 +564,130 @@
         </div>
 
         <div id="gameScreen" class="screen" role="group" aria-label="Placeholder game area">
-          <p>Loading the zone will display a placeholder map. Use this screen to test layout transitions.</p>
-          <div id="gameStage">FOREST – placeholder map</div>
-          <div class="stack">
-            <button class="btn secondary" id="saveProgress">Save Progress</button>
-            <button class="btn ghost" id="gameBack">Exit to Start</button>
-          </div>
-        </div>
-      </div>
+          <p>Load into the prototype map, then press C to open the character menu.</p>
+          <div class="gameStage">
+            <div class="mapStage">
+              <div class="mapHeader">
+                <div>
+                  <h3 id="mapTitle">FOREST</h3>
+                  <p id="mapSubtitle" class="muted">Emerald Approach — prototype map</p>
+                </div>
+                <div class="mapHeaderActions">
+                  <div class="heroMeta">
+                    <strong id="heroName">Apprentice</strong>
+                    <span id="heroFocus">Focus: Elemental • Zone: Forest</span>
+                  </div>
+                  <button class="btn ghost" id="toggleCharacterMenu">Character (C)</button>
+                </div>
+              </div>
 
-      <div class="panel" aria-live="polite">
-        <h2>Preview</h2>
-        <div id="preview">
-          <div id="previewText">Select an option to see the current screen.</div>
+              <div id="mapView" aria-label="Zone map">
+                <div class="mapOverlay" aria-hidden="true"></div>
+                <div id="heroSprite" aria-label="Your character">
+                  <div class="heroAvatar">
+                    <div class="hat" aria-hidden="true"></div>
+                    <div class="head" aria-hidden="true"></div>
+                    <div class="robe" aria-hidden="true"></div>
+                    <div class="shirt" aria-hidden="true"></div>
+                    <div class="pants" aria-hidden="true"></div>
+                    <div class="staff" aria-hidden="true"></div>
+                    <div class="orb" aria-hidden="true"></div>
+                  </div>
+                </div>
+                <div class="mapLabel">Emerald Approach — prototype map</div>
+              </div>
+
+              <div id="characterHud" class="characterHud" aria-label="Character menu">
+                <div class="hudTabs" id="gameTabs" role="tablist">
+                  <button data-tab-target="inventory" class="active" role="tab" aria-selected="true">Inventory</button>
+                  <button data-tab-target="quests" role="tab" aria-selected="false">Quests</button>
+                  <button data-tab-target="map" role="tab" aria-selected="false">Map</button>
+                  <button data-tab-target="people" role="tab" aria-selected="false">People</button>
+                  <button data-tab-target="settings" role="tab" aria-selected="false">Settings</button>
+                  <button data-tab-target="save" role="tab" aria-selected="false">Save / Exit</button>
+                </div>
+
+                <div class="hudPanels">
+                  <div id="inventory" class="tabContent active" role="tabpanel">
+                    <div class="gearSummary">
+                      <span id="hatLabel">Wide Brim</span>
+                      <span id="robeLabel">Robe: Twilight</span>
+                      <span id="shirtLabel">Tunic: Meadow</span>
+                      <span id="pantsLabel">Pants: Midnight</span>
+                    </div>
+                    <div class="inlineFields">
+                      <div class="field">
+                        <label for="hatStyle">Hat</label>
+                        <select id="hatStyle"></select>
+                      </div>
+                      <div class="field">
+                        <label for="hatColor">Hat Color</label>
+                        <select id="hatColor"></select>
+                      </div>
+                      <div class="field">
+                        <label for="shirtColor">Shirt Color</label>
+                        <select id="shirtColor"></select>
+                      </div>
+                      <div class="field">
+                        <label for="pantsColor">Pants Color</label>
+                        <select id="pantsColor"></select>
+                      </div>
+                      <div class="field">
+                        <label for="robeColor">Robe Color</label>
+                        <select id="robeColor"></select>
+                      </div>
+                    </div>
+                    <div class="inventoryList" id="inventoryList"></div>
+                  </div>
+
+                  <div id="quests" class="tabContent" role="tabpanel">
+                    <h4>Active quests</h4>
+                    <p style="color: var(--muted)">Prototype hooks only — quests will populate once implemented.</p>
+                    <ul>
+                      <li>Meet the village elder at the hilltop shrine.</li>
+                      <li>Gather three sprigs of moonmint.</li>
+                    </ul>
+                  </div>
+
+                  <div id="map" class="tabContent" role="tabpanel">
+                    <h4>World map</h4>
+                    <p style="color: var(--muted)">The grid above represents the current zone. Fast travel and markers will arrive later.</p>
+                  </div>
+
+                  <div id="people" class="tabContent" role="tabpanel">
+                    <h4>People nearby</h4>
+                    <p style="color: var(--muted)">No NPCs loaded yet. This tab will list contacts and their relationship states.</p>
+                  </div>
+
+                  <div id="settings" class="tabContent" role="tabpanel">
+                    <h4>Settings</h4>
+                    <div class="field">
+                      <label for="musicVolume">Music Volume</label>
+                      <input id="musicVolume" type="range" min="0" max="100" value="70" />
+                    </div>
+                    <div class="field">
+                      <label for="uiScale">UI Scale</label>
+                      <select id="uiScale">
+                        <option>Comfort</option>
+                        <option>Cozy</option>
+                        <option>Compact</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div id="save" class="tabContent" role="tabpanel">
+                    <p>Save your appearance choices and return to the main menu when ready.</p>
+                    <div class="stack">
+                      <button class="btn secondary" id="saveProgress">Save Progress</button>
+                      <button class="btn ghost" id="gameBack">Exit to Start</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="hudHint">Press C to open or close the character menu.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -298,15 +702,82 @@
       game: document.getElementById('gameScreen'),
     };
 
-    const previewText = document.getElementById('previewText');
+    const statusText = document.getElementById('statusText');
     const saveList = document.getElementById('saveList');
     const backButton = document.getElementById('backToStart');
+    const mapOverlay = document.querySelector('#mapView .mapOverlay');
+    const mapLabel = document.querySelector('#mapView .mapLabel');
+    const mapSubtitle = document.getElementById('mapSubtitle');
+    const heroSprite = document.getElementById('heroSprite');
+    const characterHud = document.getElementById('characterHud');
+    const toggleCharacterMenuBtn = document.getElementById('toggleCharacterMenu');
+    const inventoryList = document.getElementById('inventoryList');
+    const gearSelects = {
+      hatStyle: document.getElementById('hatStyle'),
+      hatColor: document.getElementById('hatColor'),
+      shirtColor: document.getElementById('shirtColor'),
+      pantsColor: document.getElementById('pantsColor'),
+      robeColor: document.getElementById('robeColor'),
+    };
+    const gearLabels = {
+      hat: document.getElementById('hatLabel'),
+      shirt: document.getElementById('shirtLabel'),
+      pants: document.getElementById('pantsLabel'),
+      robe: document.getElementById('robeLabel'),
+    };
 
     const saveKey = 'mageValleyPrototypeSaves';
     let currentCharacter = null;
+    let characterMenuOpen = false;
+
+    const hatStyles = ['Wide Brim', 'Traveler Cap', 'Circlet', 'Hood', 'No Hat'];
+    const colorPalette = {
+      Twilight: '#d3b7ff',
+      Meadow: '#82e0b5',
+      Midnight: '#2f3f6b',
+      Ember: '#f5a072',
+      Dusk: '#7ea5ff',
+      Charcoal: '#4c536d',
+      Moss: '#6ccf7a',
+    };
+    const inventoryItems = [
+      { name: 'Apprentice Hat', slot: 'Head', notes: 'Swappable brim styles for your mentor look.' },
+      { name: 'Layered Tunic', slot: 'Torso', notes: 'Soft linen dyed in travel-safe colors.' },
+      { name: 'Spell-scribe Robe', slot: 'Robe', notes: 'Robe panels reinforced for glyph stitching.' },
+      { name: 'Traveler Pants', slot: 'Legs', notes: 'Weather-ready trousers with hidden pockets.' },
+      { name: 'Birchwood Staff', slot: 'Hand', notes: 'Channeling focus with a skyglass orb.' },
+    ];
+
+    function getDefaultAppearance() {
+      return {
+        hatStyle: hatStyles[0],
+        hatColor: 'Dusk',
+        shirtColor: 'Meadow',
+        pantsColor: 'Midnight',
+        robeColor: 'Twilight',
+      };
+    }
+
+    function ensureAppearance(base) {
+      return { ...getDefaultAppearance(), ...(base?.appearance || {}) };
+    }
 
     function setPreview(text) {
-      previewText.textContent = text;
+      if (statusText) statusText.textContent = text;
+    }
+
+    function setCharacterMenu(open) {
+      if (!characterHud) return;
+      characterMenuOpen = open;
+      characterHud.classList.toggle('open', open);
+      if (toggleCharacterMenuBtn) {
+        toggleCharacterMenuBtn.setAttribute('aria-pressed', open.toString());
+        toggleCharacterMenuBtn.textContent = open ? 'Close Character (C)' : 'Character (C)';
+      }
+    }
+
+    function toggleCharacterMenu() {
+      setCharacterMenu(!characterMenuOpen);
     }
 
     function hideAllScreens() {
@@ -336,8 +807,13 @@
           break;
         case 'game':
           const zone = currentCharacter?.zone || 'FOREST';
-          document.getElementById('gameStage').textContent = `${zone.toUpperCase()} – placeholder map`;
-          setPreview('Placeholder game area — just a green canvas for now.');
+          document.getElementById('mapTitle').textContent = zone.toUpperCase();
+          if (mapSubtitle) mapSubtitle.textContent = `${zone} — prototype map`;
+          if (mapLabel) mapLabel.textContent = `${zone} — prototype map view`;
+          setCharacterMenu(false);
+          setPreview('Placeholder map loaded. Press C to open the character menu.');
+          activateTab('inventory');
+          hydrateGameUI();
           break;
       }
     }
@@ -345,7 +821,8 @@
     function loadSaves() {
       try {
         const raw = localStorage.getItem(saveKey);
-        return raw ? JSON.parse(raw) : [];
+        const parsed = raw ? JSON.parse(raw) : [];
+        return parsed.map((save) => ({ ...save, appearance: ensureAppearance(save) }));
       } catch (err) {
         console.warn('Unable to load saves', err);
         return [];
@@ -390,8 +867,102 @@
 
     function addSave(save) {
       const saves = loadSaves();
-      saves.unshift(save);
+      const completeSave = { ...save, appearance: ensureAppearance(save) };
+      saves.unshift(completeSave);
       persistSaves(saves.slice(0, 6));
+    }
+
+    function populateMapGrid() {
+      if (!mapOverlay) return;
+      mapOverlay.innerHTML = '';
+      for (let i = 0; i < 84; i += 1) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        mapOverlay.appendChild(tile);
+      }
+    }
+
+    function populateInventoryList() {
+      inventoryList.innerHTML = '';
+      inventoryItems.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'inventoryCard';
+        card.innerHTML = `<strong>${item.name}</strong><small>${item.slot}</small><p style="color: var(--muted)">${item.notes}</p>`;
+        inventoryList.appendChild(card);
+      });
+    }
+
+    function fillSelectOptions(select, options) {
+      select.innerHTML = '';
+      options.forEach((opt) => {
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        select.appendChild(option);
+      });
+    }
+
+    function populateGearSelects() {
+      fillSelectOptions(gearSelects.hatStyle, hatStyles);
+      fillSelectOptions(gearSelects.hatColor, Object.keys(colorPalette));
+      fillSelectOptions(gearSelects.shirtColor, Object.keys(colorPalette));
+      fillSelectOptions(gearSelects.pantsColor, Object.keys(colorPalette));
+      fillSelectOptions(gearSelects.robeColor, Object.keys(colorPalette));
+    }
+
+    function applyAppearance(appearance) {
+      if (heroSprite) {
+        heroSprite.style.setProperty('--hat', colorPalette[appearance.hatColor] || colorPalette.Dusk);
+        heroSprite.style.setProperty('--shirt', colorPalette[appearance.shirtColor] || colorPalette.Meadow);
+        heroSprite.style.setProperty('--pants', colorPalette[appearance.pantsColor] || colorPalette.Midnight);
+        heroSprite.style.setProperty('--robe', colorPalette[appearance.robeColor] || colorPalette.Twilight);
+      }
+      gearLabels.hat.textContent = appearance.hatStyle;
+      gearLabels.robe.textContent = `Robe: ${appearance.robeColor}`;
+      gearLabels.shirt.textContent = `Tunic: ${appearance.shirtColor}`;
+      gearLabels.pants.textContent = `Pants: ${appearance.pantsColor}`;
+    }
+
+    function syncGearControls(appearance) {
+      gearSelects.hatStyle.value = appearance.hatStyle;
+      gearSelects.hatColor.value = appearance.hatColor;
+      gearSelects.shirtColor.value = appearance.shirtColor;
+      gearSelects.pantsColor.value = appearance.pantsColor;
+      gearSelects.robeColor.value = appearance.robeColor;
+    }
+
+    function hydrateGameUI() {
+      if (!currentCharacter) return;
+      currentCharacter.appearance = ensureAppearance(currentCharacter);
+      document.getElementById('heroName').textContent = currentCharacter.name;
+      document.getElementById('heroFocus').textContent = `Focus: ${currentCharacter.focus} • Zone: ${currentCharacter.zone}`;
+      syncGearControls(currentCharacter.appearance);
+      applyAppearance(currentCharacter.appearance);
+    }
+
+    function handleGearChange() {
+      if (!currentCharacter) return;
+      currentCharacter.appearance = ensureAppearance(currentCharacter);
+      currentCharacter.appearance.hatStyle = gearSelects.hatStyle.value;
+      currentCharacter.appearance.hatColor = gearSelects.hatColor.value;
+      currentCharacter.appearance.shirtColor = gearSelects.shirtColor.value;
+      currentCharacter.appearance.pantsColor = gearSelects.pantsColor.value;
+      currentCharacter.appearance.robeColor = gearSelects.robeColor.value;
+      applyAppearance(currentCharacter.appearance);
+      setPreview('Gear updated — changes will save with your file.');
+    }
+
+    function activateTab(targetId) {
+      const buttons = document.querySelectorAll('[data-tab-target]');
+      const panels = document.querySelectorAll('.tabContent');
+      buttons.forEach((btn) => {
+        const isActive = btn.dataset.tabTarget === targetId;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive.toString());
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.id === targetId);
+      });
     }
 
     // Event wiring
@@ -413,16 +984,17 @@
     document.getElementById('createCharacter').addEventListener('click', () => {
       const name = document.getElementById('charName').value.trim() || 'Apprentice';
       const focus = document.getElementById('charFocus').value;
-      currentCharacter = { name, focus, zone: 'Forest' };
+      currentCharacter = { name, focus, zone: 'Forest', appearance: getDefaultAppearance() };
       addSave(currentCharacter);
       showScreen('zone');
     });
 
     document.getElementById('startForest').addEventListener('click', () => {
       if (!currentCharacter) {
-        currentCharacter = { name: 'Apprentice', focus: 'Elemental', zone: 'Forest' };
+        currentCharacter = { name: 'Apprentice', focus: 'Elemental', zone: 'Forest', appearance: getDefaultAppearance() };
       }
       currentCharacter.zone = 'Forest';
+      currentCharacter.appearance = ensureAppearance(currentCharacter);
       showScreen('game');
     });
 
@@ -431,7 +1003,32 @@
       setPreview('Progress saved locally.');
     });
 
+    document.querySelectorAll('[data-tab-target]').forEach((btn) => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.tabTarget));
+    });
+
+    Object.values(gearSelects).forEach((select) => {
+      select.addEventListener('change', handleGearChange);
+    });
+
+    if (toggleCharacterMenuBtn) {
+      toggleCharacterMenuBtn.addEventListener('click', toggleCharacterMenu);
+    }
+
+    window.addEventListener('keydown', (event) => {
+      if (!screens.game.classList.contains('active')) return;
+      const tag = document.activeElement?.tagName;
+      if (tag && ['INPUT', 'SELECT', 'TEXTAREA'].includes(tag)) return;
+      if (event.key.toLowerCase() === 'c') {
+        event.preventDefault();
+        toggleCharacterMenu();
+      }
+    });
+
     // Initialize
+    populateMapGrid();
+    populateGearSelects();
+    populateInventoryList();
     showScreen('start');
   </script>
 </body>
